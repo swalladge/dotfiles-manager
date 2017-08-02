@@ -1,0 +1,6 @@
+[package]
+name = "dotfiles-manager"
+version = "0.0.1"
+authors = ["Samuel Walladge <samuel@swalladge.id.au>"]
+
+[dependencies]
