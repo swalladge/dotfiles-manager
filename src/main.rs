@@ -83,7 +83,7 @@ fn main() {
         )
         .get_matches();
 
-    // Gets a value for config if supplied by user, or defaults to "default.conf"
+    // Gets a value for directory if given - defaults to cwd
     let dir: PathBuf = match matches.value_of("dir") {
         Some(path) => {
             match fs::canonicalize(path) {
@@ -95,46 +95,79 @@ fn main() {
         }
         None => env::current_dir().unwrap(),
     };
-    let target = matches.value_of("target").unwrap_or("");
 
-    let args: Args = Args { dir: PathBuf::from(dir) };
-
-    println!(
-        "Value for dir: {}",
-        fs::canonicalize(args.dir).unwrap().display()
-    );
-
-    if let Some(matches) = matches.subcommand_matches("install") {
-        if matches.is_present("PACKAGE") {
-            for value in matches.values_of("PACKAGE").unwrap() {
-                println!("installing package: {}", value);
+    // Gets a value for directory if given - defaults to cwd
+    let target_dir: PathBuf = match matches.value_of("target") {
+        Some(path) => {
+            match fs::canonicalize(path) {
+                Ok(path) => path,
+                Err(_) => {
+                    panic!("Invalid 'dir' path");
+                }
             }
         }
-    }
-
-    if let Some(matches) = matches.subcommand_matches("remove") {
-        if matches.is_present("PACKAGE") {
-            for value in matches.values_of("PACKAGE").unwrap() {
-                println!("removing package: {}", value);
+        None => {
+            match env::home_dir() {
+                Some(path) => PathBuf::from(path),
+                None => env::current_dir().unwrap(),
             }
         }
-    }
 
-    println!("Hello, world!");
+    };
+
+
+    // let args: Args = Args { dir: PathBuf::from(dir) };
+
+    // println!(
+    //     "Value for dir: {}",
+    //     fs::canonicalize(args.dir).unwrap().display()
+    // );
+
+
+    // get the packages list for the command
+    let mut packages: clap::Values = match matches.subcommand_name() {
+        Some(m) => {
+            match matches.subcommand_matches(m) {
+                Some(m2) => m2.values_of("PACKAGE").unwrap(),
+                _ => clap::Values::default(),
+            }
+        }
+        _ => clap::Values::default(),
+    };
+
+    // for package in packages {
+    //     println!("{}", package);
+    // }
+
+    // now we have:
+    // - dir: source directory
+    // - target_dir: target
+    // - packages: iterable of packages to install
+
+
     let mut f: FS = FS::new();
     f.set_mode(Mode::Real);
 
-    let home: PathBuf = match env::home_dir() {
-        Some(path) => PathBuf::from(path),
-        None => PathBuf::from(""),
-    };
-
-    let result = f.link_exists(home.join(".vimrc"), home.join("dotfiles/vimrc"));
+    let result = f.link_exists(target_dir.join(".vimrc"), target_dir.join("dotfiles/vimrc"));
     if result {
         println!("link exists");
     } else {
         println!("link does not exist");
     }
+
+    let package1 = match packages.next() {
+        Some(package) => package,
+        _ => panic!("no packages"),
+    };
+
+    // lets try symlinking things!
+    let mut files_base = dir;
+    files_base.push(package1);
+    files_base.push("files");
+    println!("{}", files_base.display());
+    println!("{}", target_dir.display());
+
+
 
 }
 
