@@ -7,7 +7,13 @@ mod app;
 mod args;
 mod runner;
 
+// exit code structure idea from https://stackoverflow.com/a/30285110
 fn main() {
+    let exit_code = run();
+    std::process::exit(exit_code);
+}
+
+fn run() -> i32 {
     let app = app::new();
     let args = args::get_args(app);
 
@@ -20,7 +26,9 @@ fn main() {
     };
 
     if success {
-        println!("Completed successfully!");
+        return 0;
+    } else {
+        return 1;
     }
 
 }
