@@ -2,166 +2,27 @@ extern crate clap;
 
 use std::path::{Path, PathBuf};
 use std::env;
-use clap::{Arg, App, SubCommand};
 use std::fs;
 
-use args::Args;
-
+mod app;
 mod args;
 
 fn main() {
-    let matches = App::new("Dotfiles manager")
-        .version("0.0.1")
-        .author("Samuel Walladge <samuel@swalladge.id.au>")
-        .about("Manages dotfiles")
-        .arg(
-            Arg::with_name("dir")
-                .short("d")
-                .long("dir")
-                .value_name("DIR")
-                .help("Set dir to DIR (default is current dir)")
-                .takes_value(true),
-        )
-        .arg(
-            Arg::with_name("hostname")
-                .short("B")
-                .long("hostname")
-                .value_name("NAME")
-                .help("override computer's hostname to NAME")
-                .takes_value(true),
-        )
-        // TODO: config file options
-        .arg(
-            Arg::with_name("target")
-                .short("t")
-                .long("target")
-                .value_name("DIR")
-                .help("Set target to DIR (default is $HOME)")
-                .takes_value(true),
-        )
-        .arg(Arg::with_name("test").long("no").short("n").help(
-            "Do not actually make any filesystem changes or run hooks",
-        ))
-        .arg(Arg::with_name("verbose").long("verbose").short("v").help(
-            "Be verbose",
-        ))
-        .subcommand(
-            SubCommand::with_name("install")
-                .about("install tags/packages")
-                .arg(
-                    Arg::with_name("PACKAGE")
-                        .help("package name(s)")
-                        .required(true)
-                        .multiple(true),
-                ),
-        )
-        .subcommand(
-            SubCommand::with_name("remove")
-                .about("remove tags/packages")
-                .arg(
-                    Arg::with_name("PACKAGE")
-                        .help("package name(s)")
-                        .required(true)
-                        .multiple(true),
-                )
-                .alias("uninstall"),
-        )
-        .subcommand(
-            SubCommand::with_name("add")
-                .about("add a file to package")
-                .arg(
-                    Arg::with_name("file")
-                        .help("dotfile to add/adopt")
-                        .required(true),
-                )
-                .arg(Arg::with_name("host").short("b").long("host").help(
-                    "add as host-specific",
-                ))
-                .arg(Arg::with_name("package").short("p").long("package").help(
-                    "package name to install to",
-                )),
-        )
-        .get_matches();
-
-    // Gets a value for directory if given - defaults to cwd
-    let dir: PathBuf = match matches.value_of("dir") {
-        Some(path) => {
-            match fs::canonicalize(path) {
-                Ok(path) => path,
-                Err(_) => {
-                    panic!("Invalid 'dir' path");
-                }
-            }
-        }
-        None => env::current_dir().unwrap(),
-    };
-
-    // Gets a value for directory if given - defaults to cwd
-    let target_dir: PathBuf = match matches.value_of("target") {
-        Some(path) => {
-            match fs::canonicalize(path) {
-                Ok(path) => path,
-                Err(_) => {
-                    panic!("Invalid 'dir' path");
-                }
-            }
-        }
-        None => {
-            match env::home_dir() {
-                Some(path) => PathBuf::from(path),
-                None => env::current_dir().unwrap(),
-            }
-        }
-
-    };
-
-
-    // let args: Args = Args { dir: PathBuf::from(dir) };
-
-    // println!(
-    //     "Value for dir: {}",
-    //     fs::canonicalize(args.dir).unwrap().display()
-    // );
-
-
-    // get the packages list for the command
-    let mut packages: clap::Values = match matches.subcommand_name() {
-        Some(m) => {
-            match matches.subcommand_matches(m) {
-                Some(m2) => m2.values_of("PACKAGE").unwrap(),
-                _ => clap::Values::default(),
-            }
-        }
-        _ => clap::Values::default(),
-    };
-
-    // for package in packages {
-    //     println!("{}", package);
-    // }
-
-    // now we have:
-    // - dir: source directory
-    // - target_dir: target
-    // - packages: iterable of packages to install
+    let app = app::new();
+    let args = args::get_args(app);
 
 
     let mut f: FS = FS::new();
     f.set_mode(Mode::Real);
 
-    let result = f.link_exists(target_dir.join(".vimrc"), target_dir.join("dotfiles/vimrc"));
-    if result {
-        println!("link exists");
-    } else {
-        println!("link does not exist");
-    }
-
-    let package1 = match packages.next() {
-        Some(package) => package,
-        _ => panic!("no packages"),
-    };
+    // let package1 = match args.packages.next() {
+    //     Some(package) => package,
+    //     _ => panic!("no packages"),
+    // };
+    let package1 = "vim";
 
     // lets try symlinking things!
-    let mut files_base = dir;
+    let mut files_base = args.dir;
     files_base.push(package1);
     files_base.push("files");
 
@@ -170,7 +31,7 @@ fn main() {
     let dirs = get_dirs_to_create(&files_base);
     for dir in dirs {
         let base = dir.strip_prefix(&files_base).unwrap();
-        let new_dir = target_dir.join(base);
+        let new_dir = args.target_dir.join(base);
 
         let result = fs::create_dir_all(new_dir);
         match result {
@@ -183,7 +44,9 @@ fn main() {
     // symlink the files
     let files = get_files_to_symlink(&files_base);
     for file in files {
-        let dest = target_dir.join(file.strip_prefix(&files_base).unwrap());
+        let dest = args.target_dir.join(
+            file.strip_prefix(&files_base).unwrap(),
+        );
         let ok = f.create_link(&file, &dest);
         // TODO: check if worked
     }
