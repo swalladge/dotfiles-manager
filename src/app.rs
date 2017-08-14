@@ -2,7 +2,7 @@ use clap::{App, Arg, SubCommand};
 
 
 pub fn new() -> App<'static, 'static> {
-    App::new("Dotfiles manager")
+    App::new("dotfiles-manager")
     .version("0.0.1")
     .author("Samuel Walladge <samuel@swalladge.id.au>")
     .about("Manages dotfiles")
@@ -76,4 +76,18 @@ pub fn new() -> App<'static, 'static> {
                 "package name to install to",
             )),
     )
+}
+
+
+#[cfg(test)]
+mod tests {
+    use app;
+
+    #[test]
+    fn subcommand_use() {
+        let app = app::new();
+        let args = vec!["dotfiles-manager", "install", "vim"];
+        let matches = app.get_matches_from(args);
+        assert_eq!(matches.subcommand_name(), Some("install"));
+    }
 }

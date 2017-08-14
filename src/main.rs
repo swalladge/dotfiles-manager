@@ -15,14 +15,17 @@ fn main() {
 
 fn run() -> i32 {
     let app = app::new();
-    let args = args::get_args(app);
+    let args = args::get_args(app.get_matches());
 
     let runner = Runner::new(&args);
 
     let success = match args.command {
         Command::Install => runner.install(),
         // TODO: implement others
-        _ => false,
+        _ => {
+            println!("Valid subcommand required!");
+            false
+        }
     };
 
     if success {

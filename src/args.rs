@@ -22,8 +22,7 @@ pub struct Args {
     pub command: Command,
 }
 
-pub fn get_args(app: clap::App) -> Args {
-    let matches = app.get_matches();
+pub fn get_args(matches: clap::ArgMatches) -> Args {
 
     Args {
         dir: match matches.value_of("dir") {
@@ -88,5 +87,35 @@ pub fn get_args(app: clap::App) -> Args {
         },
 
         test: matches.is_present("test"),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use args;
+    use app;
+
+    #[test]
+    fn check_verbose() {
+        let app = app::new();
+        let app_args = vec!["dotfiles-manager", "-v"];
+        let args = args::get_args(app.get_matches_from(app_args));
+        assert!(args.verbose);
+    }
+
+    #[test]
+    fn check_test() {
+        let app = app::new();
+        let app_args = vec!["dotfiles-manager", "-n"];
+        let args = args::get_args(app.get_matches_from(app_args));
+        assert!(args.test);
+    }
+
+    #[test]
+    fn check_test_long_args() {
+        let app = app::new();
+        let app_args = vec!["dotfiles-manager", "--no"];
+        let args = args::get_args(app.get_matches_from(app_args));
+        assert!(args.test);
     }
 }
