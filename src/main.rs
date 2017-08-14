@@ -166,12 +166,6 @@ fn main() {
     files_base.push("files");
 
 
-    // build a list of directories in dir to be created under target_dir
-    // build a list of files to symlink
-    // create the dirs
-    // symlink the files
-
-
     // create all the directories required
     let dirs = get_dirs_to_create(&files_base);
     for dir in dirs {
@@ -186,7 +180,14 @@ fn main() {
 
     }
 
+    // symlink the files
     let files = get_files_to_symlink(&files_base);
+    for file in files {
+        let dest = target_dir.join(file.strip_prefix(&files_base).unwrap());
+        let ok = f.create_link(&file, &dest);
+        // TODO: check if worked
+    }
+
 }
 
 fn get_files_to_symlink(base: &PathBuf) -> Vec<PathBuf> {
@@ -244,16 +245,20 @@ impl FS {
         self.mode = mode;
     }
 
-    fn create_link<P: AsRef<Path>, Q: AsRef<Path>>(&self, link: P, target: Q) -> bool {
+    fn create_link(&self, link: &PathBuf, target: &PathBuf) -> bool {
         match self.mode {
             Mode::Succeed => true,
             Mode::Fail => false,
             Mode::Real => {
+                // TODO: work on windows too
                 use std::os::unix::fs::symlink;
                 let result = symlink(link, target);
                 match result {
                     Ok(_) => true,
-                    Err(_) => false,
+                    Err(msg) => {
+                        println!("failed to create link {:?} | {}", link, msg);
+                        false
+                    }
                 }
             }
         }
