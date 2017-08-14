@@ -164,13 +164,66 @@ fn main() {
     let mut files_base = dir;
     files_base.push(package1);
     files_base.push("files");
-    println!("{}", files_base.display());
-    println!("{}", target_dir.display());
 
 
+    // build a list of directories in dir to be created under target_dir
+    // build a list of files to symlink
+    // create the dirs
+    // symlink the files
 
+
+    // create all the directories required
+    let dirs = get_dirs_to_create(&files_base);
+    for dir in dirs {
+        let base = dir.strip_prefix(&files_base).unwrap();
+        let new_dir = target_dir.join(base);
+
+        let result = fs::create_dir_all(new_dir);
+        match result {
+            Ok(_) => println!("created ok!"),
+            Err(msg) => println!("fail: {}", msg),
+        }
+
+    }
+
+    let files = get_files_to_symlink(&files_base);
 }
 
+fn get_files_to_symlink(base: &PathBuf) -> Vec<PathBuf> {
+    let mut vec = Vec::new();
+
+    for entry in base.read_dir().expect("read_dir call failed") {
+        if let Ok(entry) = entry {
+            if entry.file_type().unwrap().is_dir() {
+                for file in get_files_to_symlink(&entry.path()) {
+                    vec.push(file);
+                }
+            } else {
+                vec.push(entry.path());
+            }
+        }
+    }
+
+    vec
+}
+
+
+fn get_dirs_to_create(base: &PathBuf) -> Vec<PathBuf> {
+    let mut vec = Vec::new();
+
+    for entry in base.read_dir().expect("read_dir call failed") {
+        if let Ok(entry) = entry {
+            if entry.file_type().unwrap().is_dir() {
+                for dir in get_dirs_to_create(&entry.path()) {
+                    vec.push(dir);
+                }
+                vec.push(entry.path());
+            }
+        }
+    }
+
+    vec
+}
 
 enum Mode {
     Real,
