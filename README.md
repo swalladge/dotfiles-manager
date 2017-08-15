@@ -21,6 +21,15 @@ GitHub issues are currently used for tracking progress and documenting
 lower level requirements.
 
 
+# Testing
+
+There are unit tests that can be run through cargo:
+
+```
+$ cargo test
+```
+
+
 # Usage
 
 ```
