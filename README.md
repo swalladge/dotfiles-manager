@@ -36,6 +36,18 @@ $ cargo test
 Integration tests WIP
 
 
+# Features
+
+- [x] link files from a directory (package) stow-style
+- [ ] remove links from a package
+- [ ] host specific config
+- [ ] run scripts as hooks before and after installing/removing
+- [ ] force install/remove links
+- [ ] run in test mode (no filesystem changes)
+- [ ] integration tests
+- [ ] stable cli api
+
+
 # Usage
 
 ```
