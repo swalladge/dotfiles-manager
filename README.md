@@ -5,7 +5,7 @@ Copyright © 2017 Samuel Walladge
 Experimental dotfiles manager in rust. (alpha quality)
 
 [![Build Status](https://travis-ci.org/swalladge/dotfiles-manager.svg?branch=master)](https://travis-ci.org/swalladge/dotfiles-manager)
-[![Coverage Status](https://coveralls.io/repos/github/swalladge/dotfiles-manager/badge.svg)](https://coveralls.io/github/swalladge/dotfiles-manager)
+[![Coverage Status](https://coveralls.io/repos/github/swalladge/dotfiles-manager/badge.svg?branch=master)](https://coveralls.io/github/swalladge/dotfiles-manager?branch=master)
 
 # About
 
