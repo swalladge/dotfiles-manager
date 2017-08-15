@@ -2,13 +2,24 @@
 
 Copyright © 2017 Samuel Walladge
 
-dotfiles manager project for PRT455
+Experimental dotfiles manager in rust. (alpha quality)
 
 
-WIP
+# About
+
+This is a project for PRT455 (Software Engineering Practice).
+The idea is to build a dotfiles manager that is fast, stable, and features the
+best from a selection of other dotfiles managers and community interest.
+
+Direction for the project taken from initial research, documented in the
+[project plan](docs/PRT455-project-plan-SamuelWalladge.pdf), and a
+[survey](https://swalladge.id.au/posts/2017/08/07/dotfiles-config-survey.html).
+
+
+# Usage
 
 ```
-Dotfiles manager 0.0.1
+dotfiles-manager 0.0.1
 Samuel Walladge <samuel@swalladge.id.au>
 Manages dotfiles
 
@@ -16,6 +27,8 @@ USAGE:
     dotfiles-manager [FLAGS] [OPTIONS] [SUBCOMMAND]
 
 FLAGS:
+    -f, --force      Force creating/removing directories and symlinks, overwriting any
+                     that exist.
     -h, --help       Prints help information
     -n, --no         Do not actually make any filesystem changes or run hooks
     -V, --version    Prints version information
@@ -32,3 +45,22 @@ SUBCOMMANDS:
     install    install tags/packages
     remove     remove tags/packages
 ```
+
+
+# License
+
+     dotfiles-manager - experimental dotfiles manager in rust
+     Copyright (C) 2017 Samuel Walladge
+
+     This program is free software: you can redistribute it and/or modify it
+     under the terms of the GNU General Public License as published by the Free
+     Software Foundation, either version 3 of the License, or (at your option)
+     any later version.
+
+     This program is distributed in the hope that it will be useful, but
+     WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+     or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+     for more details.
+
+     You should have received a copy of the GNU General Public License along
+     with this program.  If not, see <http://www.gnu.org/licenses/>.
