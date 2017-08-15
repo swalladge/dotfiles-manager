@@ -1,4 +1,5 @@
 extern crate clap;
+extern crate sys_info;
 
 use args::Command;
 use runner::Runner;

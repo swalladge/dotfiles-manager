@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use std::fs;
 
 use clap;
+use sys_info;
 
 pub enum Command {
     Install,
@@ -83,7 +84,15 @@ pub fn get_args(matches: clap::ArgMatches) -> Args {
 
         hostname: match matches.value_of("hostname") {
             Some(name) => name.to_owned(),
-            _ => "TEMPHOSTNAME".to_owned(),
+            _ => {
+                match sys_info::hostname() {
+                    Ok(name) => name,
+                    Err(_) => {
+                        println!("Hostname discovery failed, disabling host specific tasks!");
+                        "".to_owned()
+                    }
+                }
+            }
         },
 
         test: matches.is_present("test"),
@@ -118,4 +127,40 @@ mod tests {
         let args = args::get_args(app.get_matches_from(app_args));
         assert!(args.test);
     }
+
+    #[test]
+    fn check_hostname_given() {
+        let app = app::new();
+        let app_args = vec!["dotfiles-manager", "-B", "myhostname", "install", "vim"];
+        let args = args::get_args(app.get_matches_from(app_args));
+        assert_eq!(args.hostname, "myhostname");
+    }
+
+
+    #[test]
+    fn check_hostname_discovered() {
+        let app = app::new();
+        let app_args = vec!["dotfiles-manager", "install", "vim"];
+        let args = args::get_args(app.get_matches_from(app_args));
+        // make sure a hostname is found
+        assert!(args.hostname.len() > 0);
+    }
+
+
+    #[test]
+    fn check_force_on() {
+        let app = app::new();
+        let app_args = vec!["dotfiles-manager", "-f", "install", "vim"];
+        let args = args::get_args(app.get_matches_from(app_args));
+        assert!(args.force);
+    }
+
+    #[test]
+    fn check_force_off() {
+        let app = app::new();
+        let app_args = vec!["dotfiles-manager", "install", "vim"];
+        let args = args::get_args(app.get_matches_from(app_args));
+        assert_eq!(args.force, false);
+    }
+
 }

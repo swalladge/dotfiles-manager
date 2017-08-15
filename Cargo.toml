@@ -5,3 +5,4 @@ authors = ["Samuel Walladge <samuel@swalladge.id.au>"]
 
 [dependencies]
 clap = "2.26.0"
+sys-info = "*"
