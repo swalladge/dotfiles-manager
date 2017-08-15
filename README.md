@@ -24,11 +24,16 @@ lower level requirements.
 
 # Testing
 
+For continuous integration, all tests are run on every push with Travis.
+
+
 There are unit tests that can be run through cargo:
 
 ```
 $ cargo test
 ```
+
+Integration tests WIP
 
 
 # Usage
