@@ -4,6 +4,7 @@ Copyright © 2017 Samuel Walladge
 
 Experimental dotfiles manager in rust. (alpha quality)
 
+[![Build Status](https://travis-ci.org/swalladge/dotfiles-manager.svg?branch=master)](https://travis-ci.org/swalladge/dotfiles-manager)
 
 # About
 
