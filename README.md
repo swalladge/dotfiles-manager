@@ -15,6 +15,11 @@ Direction for the project taken from initial research, documented in the
 [project plan](docs/PRT455-project-plan-SamuelWalladge.pdf), and a
 [survey](https://swalladge.id.au/posts/2017/08/07/dotfiles-config-survey.html).
 
+A sub goal of this is to learn rust, so the code may be a bit iffy...
+
+GitHub issues are currently used for tracking progress and documenting
+lower level requirements.
+
 
 # Usage
 
