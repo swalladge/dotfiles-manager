@@ -37,25 +37,29 @@ pub fn get_args(matches: clap::ArgMatches) -> Result<Args, &'static str> {
         None => env::current_dir().unwrap(),
     };
 
+    let target_dir = match matches.value_of("target") {
+        Some(path) => {
+            match fs::canonicalize(path) {
+                Ok(path) => path,
+                Err(_) => {
+                    return Err("invalid target dir path");
+                }
+            }
+        }
+        None => {
+            match env::home_dir() {
+                Some(path) => PathBuf::from(path),
+                None => {
+                    return Err("could not determine home directory");
+                }
+            }
+        }
+    };
+
     let args = Args {
         dir: dir,
 
-        target_dir: match matches.value_of("target") {
-            Some(path) => {
-                match fs::canonicalize(path) {
-                    Ok(path) => path,
-                    Err(_) => {
-                        panic!("Invalid 'dir' path");
-                    }
-                }
-            }
-            None => {
-                match env::home_dir() {
-                    Some(path) => PathBuf::from(path),
-                    None => env::current_dir().unwrap(),
-                }
-            }
-        },
+        target_dir: target_dir,
 
         // get the packages list for the command
         packages: match matches.subcommand_name() {
@@ -104,6 +108,10 @@ pub fn get_args(matches: clap::ArgMatches) -> Result<Args, &'static str> {
 
 #[cfg(test)]
 mod tests {
+    use std::env;
+    use std::fs;
+    use std::path::PathBuf;
+
     use args;
     use app;
 
@@ -201,6 +209,45 @@ mod tests {
         ];
         let args = args::get_args(app.get_matches_from(app_args));
         assert!(args.is_err(), "should be Err because dir doesn't exist");
+    }
+
+    #[test]
+    fn check_invalid_target_dir() {
+        let app = app::new();
+        let app_args = vec![
+            "dotfiles-manager",
+            "-t",
+            "test/doesnotexist",
+            "install",
+            "vim",
+            "zsh",
+        ];
+        let args = args::get_args(app.get_matches_from(app_args));
+        assert!(args.is_err(), "should be Err because dir doesn't exist");
+    }
+
+    #[test]
+    fn check_default_target_dir() {
+        let app = app::new();
+        let app_args = vec!["dotfiles-manager", "install", "vim", "zsh"];
+        let args = args::get_args(app.get_matches_from(app_args)).unwrap();
+        assert_eq!(args.target_dir, env::home_dir().unwrap());
+    }
+
+    #[test]
+    fn check_given_target_dir() {
+        let app = app::new();
+        let target_dir = fs::canonicalize("test/home").unwrap();
+        let app_args = vec![
+            "dotfiles-manager",
+            "--target",
+            target_dir.to_str().unwrap(),
+            "install",
+            "vim",
+            "zsh",
+        ];
+        let args = args::get_args(app.get_matches_from(app_args)).unwrap();
+        assert_eq!(args.target_dir, PathBuf::from(&target_dir));
     }
 
 }
