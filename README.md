@@ -26,15 +26,17 @@ lower level requirements.
 # Testing
 
 For continuous integration, all tests are run on every push with Travis.
-
-
-There are unit tests that can be run through cargo:
-
-```
-$ cargo test
-```
+Tests are run by cargo with `cargo test` or for convenience, with make (`make test`).
 
 Integration tests WIP
+
+
+# Code coverage
+
+Code coverage reports are generated with `kcov` and uploaded to the [Coveralls
+project](https://coveralls.io/github/swalladge/dotfiles-manager).
+
+They can be generated and viewed locally with `make coverage`.
 
 
 # Features

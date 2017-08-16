@@ -7,5 +7,8 @@ all: build
 build:
 	cargo build
 
-# test: build
-# 	bundle exec cucumber
+coverage:
+	./scripts/gen-coverage.sh
+
+test:
+	cargo test
