@@ -1,0 +1,3 @@
+" global vimrc
+
+syntax on
