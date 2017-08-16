@@ -56,6 +56,18 @@ pub fn get_args(matches: clap::ArgMatches) -> Result<Args, &'static str> {
         }
     };
 
+    let hostname = match matches.value_of("hostname") {
+        Some(name) => name.to_owned(),
+        _ => {
+            match sys_info::hostname() {
+                Ok(name) => name,
+                Err(_) => {
+                    return Err("could not determine hostname");
+                }
+            }
+        }
+    };
+
     let args = Args {
         dir: dir,
 
@@ -88,18 +100,7 @@ pub fn get_args(matches: clap::ArgMatches) -> Result<Args, &'static str> {
 
         verbose: matches.is_present("verbose"),
 
-        hostname: match matches.value_of("hostname") {
-            Some(name) => name.to_owned(),
-            _ => {
-                match sys_info::hostname() {
-                    Ok(name) => name,
-                    Err(_) => {
-                        println!("Hostname discovery failed, disabling host specific tasks!");
-                        "".to_owned()
-                    }
-                }
-            }
-        },
+        hostname: hostname,
 
         test: matches.is_present("test"),
     };
