@@ -16,7 +16,13 @@ fn main() {
 
 fn run() -> i32 {
     let app = app::new();
-    let args = args::get_args(app.get_matches());
+    let args = match args::get_args(app.get_matches()) {
+        Ok(args) => args,
+        Err(msg) => {
+            println!("Argument error: {}", msg);
+            return 1;
+        }
+    };
 
     let runner = Runner::new(&args);
 
