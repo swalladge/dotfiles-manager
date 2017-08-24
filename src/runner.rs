@@ -1,5 +1,6 @@
 use std::path::{Path, PathBuf};
 use std::fs;
+use std::collections::HashMap;
 
 use args::Args;
 
@@ -29,13 +30,14 @@ impl<'a> Runner<'a> {
         // lets try symlinking things!
         let mut files_base = args.dir.clone();
         files_base.push(package1);
-        files_base.push("files");
+        let mut global_files_base = files_base.clone();
 
+        global_files_base.push("files");
 
         // create all the directories required
-        let dirs = get_dirs_to_create(&files_base);
+        let dirs = get_dirs_to_create(&global_files_base);
         for dir in dirs {
-            let base = dir.strip_prefix(&files_base).unwrap();
+            let base = dir.strip_prefix(&global_files_base).unwrap();
             let new_dir = args.target_dir.join(base);
 
             let result = fs::create_dir_all(new_dir);
@@ -46,15 +48,61 @@ impl<'a> Runner<'a> {
 
         }
 
-        // symlink the files
-        let files = get_files_to_symlink(&files_base);
+        // host specific config
+        let mut host_files_base = files_base.clone();
+        host_files_base.push(&args.hostname);
+        host_files_base.push("files");
+
+        let mut host_files: Vec<PathBuf> = vec![];
+
+        if f.dir_exists(&host_files_base) {
+
+            let host_dirs = get_dirs_to_create(&host_files_base);
+            for dir in host_dirs {
+                let base = dir.strip_prefix(&global_files_base).unwrap();
+                let new_dir = args.target_dir.join(base);
+
+                let result = fs::create_dir_all(new_dir);
+                match result {
+                    Ok(_) => println!("created ok!"),
+                    Err(msg) => println!("fail: {}", msg),
+                }
+
+            }
+
+            // symlink the files
+            host_files = get_files_to_symlink(&host_files_base);
+        }
+
+        let files = get_files_to_symlink(&global_files_base);
+
+        // map destinations to link targets
+        // this method allows host-specfic files to take precedence
+        let mut dests: HashMap<PathBuf, PathBuf> = HashMap::new();
+        for file in host_files {
+            let dest = args.target_dir.join(
+                file.strip_prefix(&host_files_base).unwrap(),
+            );
+            dests.insert(dest, file.clone());
+        }
+
         for file in files {
             let dest = args.target_dir.join(
-                file.strip_prefix(&files_base).unwrap(),
+                file.strip_prefix(&global_files_base)
+                    .unwrap(),
             );
-            let ok = f.create_link(&file, &dest);
+            if !dests.contains_key(&dest) {
+                dests.insert(dest, file.clone());
+            }
+        }
+
+        for (dest, file) in dests {
+            // dest is the new file to be created
+            // it should be a symbolic link pointing to file
+            let ok = f.create_link(&dest, &file, args.force);
             // TODO: check if worked
         }
+
 
         return true;
     }
@@ -115,14 +163,27 @@ impl FS {
         self.mode = mode;
     }
 
-    fn create_link(&self, link: &PathBuf, target: &PathBuf) -> bool {
+    fn create_link(&self, link: &PathBuf, target: &PathBuf, force: bool) -> bool {
         match self.mode {
             Mode::Succeed => true,
             Mode::Fail => false,
             Mode::Real => {
                 // TODO: work on windows too
                 use std::os::unix::fs::symlink;
-                let result = symlink(link, target);
+                if force {
+                    match fs::canonicalize(&link) {
+                        Ok(_) => {
+                            if link.is_file() {
+                                println!("removing {}", link.display());
+                                fs::remove_file(&link);
+                            } else if link.is_dir() {
+                                fs::remove_dir_all(&link);
+                            }
+                        }
+                        _ => (),
+                    }
+                }
+                let result = symlink(target, link);
                 match result {
                     Ok(_) => true,
                     Err(msg) => {
@@ -155,6 +216,14 @@ impl FS {
             Mode::Succeed => true,
             Mode::Fail => false,
             Mode::Real => file.as_ref().is_file(),
+        }
+    }
+
+    fn dir_exists<P: AsRef<Path>>(&self, dir: P) -> bool {
+        match self.mode {
+            Mode::Succeed => true,
+            Mode::Fail => false,
+            Mode::Real => dir.as_ref().is_dir(),
         }
     }
 }

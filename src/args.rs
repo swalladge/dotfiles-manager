@@ -30,7 +30,7 @@ pub fn get_args(matches: clap::ArgMatches) -> Result<Args, &'static str> {
             match fs::canonicalize(path) {
                 Ok(path) => path,
                 Err(_) => {
-                    return Err("invalid base dir path");
+                    return Err("invalid repo dir (-d) path");
                 }
             }
         }
