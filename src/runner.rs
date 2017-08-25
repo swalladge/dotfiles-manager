@@ -36,8 +36,20 @@ impl<'a> Runner<'a> {
         let mut global_hooks_base = package_base.clone();
         global_hooks_base.push("hooks");
 
-        let mut global_files_base = package_base.clone();
+        // run the pre-up hooks
 
+        let mut pre_up_hooks_dir = global_hooks_base.clone();
+        pre_up_hooks_dir.push("pre-up");
+        let mut host_pre_up_hooks_dir = package_base.clone();
+        host_pre_up_hooks_dir.push("hosts");
+        host_pre_up_hooks_dir.push(&args.hostname);
+        host_pre_up_hooks_dir.push("hooks");
+        host_pre_up_hooks_dir.push("pre-up");
+
+        hooks::run_hooks(&pre_up_hooks_dir, &host_pre_up_hooks_dir);
+
+
+        let mut global_files_base = package_base.clone();
         global_files_base.push("files");
 
         // create all the directories required
@@ -115,7 +127,6 @@ impl<'a> Runner<'a> {
 
         // Now for the post-up hooks!
 
-
         let mut post_up_hooks_dir = global_hooks_base.clone();
         post_up_hooks_dir.push("post-up");
         let mut host_post_up_hooks_dir = package_base.clone();
@@ -125,7 +136,6 @@ impl<'a> Runner<'a> {
         host_post_up_hooks_dir.push("post-up");
 
         hooks::run_hooks(&post_up_hooks_dir, &host_post_up_hooks_dir);
-
 
         return true;
     }
