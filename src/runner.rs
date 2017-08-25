@@ -1,9 +1,10 @@
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::fs;
 use std::collections::HashMap;
 
 use args::Args;
 use hooks;
+use file_ops::{FS, Mode};
 
 
 pub struct Runner<'a> {
@@ -105,7 +106,9 @@ impl<'a> Runner<'a> {
             // dest is the new file to be created
             // it should be a symbolic link pointing to file
             let ok = f.create_link(&dest, &file, args.force);
-            // TODO: check if worked
+            if !ok {
+                return false;
+            }
         }
 
 
@@ -162,88 +165,4 @@ fn get_dirs_to_create(base: &PathBuf) -> Vec<PathBuf> {
     }
 
     vec
-}
-
-enum Mode {
-    Real,
-    Succeed,
-    Fail,
-}
-
-struct FS {
-    mode: Mode,
-}
-
-impl FS {
-    fn new() -> FS {
-        FS { mode: Mode::Real }
-    }
-
-    fn set_mode(&mut self, mode: Mode) {
-        self.mode = mode;
-    }
-
-    fn create_link(&self, link: &PathBuf, target: &PathBuf, force: bool) -> bool {
-        match self.mode {
-            Mode::Succeed => true,
-            Mode::Fail => false,
-            Mode::Real => {
-                // TODO: work on windows too
-                use std::os::unix::fs::symlink;
-                if force {
-                    match fs::canonicalize(&link) {
-                        Ok(_) => {
-                            if link.is_file() {
-                                println!("removing {}", link.display());
-                                fs::remove_file(&link);
-                            } else if link.is_dir() {
-                                fs::remove_dir_all(&link);
-                            }
-                        }
-                        _ => (),
-                    }
-                }
-                let result = symlink(target, link);
-                match result {
-                    Ok(_) => true,
-                    Err(msg) => {
-                        println!("failed to create link {:?} | {}", link, msg);
-                        false
-                    }
-                }
-            }
-        }
-    }
-
-    fn link_exists<P: AsRef<Path>, Q: AsRef<Path>>(&self, link: P, target: Q) -> bool {
-        match self.mode {
-            Mode::Succeed => true,
-            Mode::Fail => false,
-            Mode::Real => {
-                use std::fs;
-
-                let link = fs::read_link(link);
-                match link {
-                    Ok(link) => link == target.as_ref(),
-                    Err(_) => false,
-                }
-            }
-        }
-    }
-
-    fn file_exists<P: AsRef<Path>>(&self, file: P) -> bool {
-        match self.mode {
-            Mode::Succeed => true,
-            Mode::Fail => false,
-            Mode::Real => file.as_ref().is_file(),
-        }
-    }
-
-    fn dir_exists<P: AsRef<Path>>(&self, dir: P) -> bool {
-        match self.mode {
-            Mode::Succeed => true,
-            Mode::Fail => false,
-            Mode::Real => dir.as_ref().is_dir(),
-        }
-    }
 }

@@ -8,6 +8,7 @@ mod app;
 mod args;
 mod runner;
 mod hooks;
+mod file_ops;
 
 // exit code structure idea from https://stackoverflow.com/a/30285110
 fn main() {
