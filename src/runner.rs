@@ -1,9 +1,9 @@
 use std::path::{Path, PathBuf};
 use std::fs;
 use std::collections::HashMap;
-use std::process::Command;
 
 use args::Args;
+use hooks;
 
 
 pub struct Runner<'a> {
@@ -115,31 +115,13 @@ impl<'a> Runner<'a> {
 
         let mut post_up_hooks_dir = global_hooks_base.clone();
         post_up_hooks_dir.push("post-up");
+        let mut host_post_up_hooks_dir = package_base.clone();
+        host_post_up_hooks_dir.push("hosts");
+        host_post_up_hooks_dir.push(&args.hostname);
+        host_post_up_hooks_dir.push("hooks");
+        host_post_up_hooks_dir.push("post-up");
 
-        let mut hooks_files = Vec::new();
-
-        for entry in post_up_hooks_dir.read_dir().expect(
-            "read_dir call failed (post-up hooks dir) - no post-up hooks will run",
-        )
-        {
-            if let Ok(entry) = entry {
-                if entry.file_type().unwrap().is_file() {
-                    hooks_files.push(entry.path());
-                }
-            }
-        }
-
-        for path in hooks_files {
-            let s = path.as_os_str();
-            println!(
-                "Running hook {:?}",
-                path.strip_prefix(&package_base).unwrap()
-            );
-
-            Command::new(s).spawn().expect(
-                "hook exited with fail status",
-            );
-        }
+        hooks::run_hooks(&post_up_hooks_dir, &host_post_up_hooks_dir);
 
 
         return true;
