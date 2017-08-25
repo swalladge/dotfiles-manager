@@ -1,6 +1,7 @@
 use std::path::{Path, PathBuf};
 use std::fs;
 use std::collections::HashMap;
+use std::process::Command;
 
 use args::Args;
 
@@ -28,9 +29,13 @@ impl<'a> Runner<'a> {
         let package1 = "vim";
 
         // lets try symlinking things!
-        let mut files_base = args.dir.clone();
-        files_base.push(package1);
-        let mut global_files_base = files_base.clone();
+        let mut package_base = args.dir.clone();
+        package_base.push(package1);
+
+        let mut global_hooks_base = package_base.clone();
+        global_hooks_base.push("hooks");
+
+        let mut global_files_base = package_base.clone();
 
         global_files_base.push("files");
 
@@ -49,7 +54,7 @@ impl<'a> Runner<'a> {
         }
 
         // host specific config
-        let mut host_files_base = files_base.clone();
+        let mut host_files_base = package_base.clone();
         host_files_base.push(&args.hostname);
         host_files_base.push("files");
 
@@ -101,6 +106,39 @@ impl<'a> Runner<'a> {
             // it should be a symbolic link pointing to file
             let ok = f.create_link(&dest, &file, args.force);
             // TODO: check if worked
+        }
+
+
+
+        // Now for the post-up hooks!
+
+
+        let mut post_up_hooks_dir = global_hooks_base.clone();
+        post_up_hooks_dir.push("post-up");
+
+        let mut hooks_files = Vec::new();
+
+        for entry in post_up_hooks_dir.read_dir().expect(
+            "read_dir call failed (post-up hooks dir) - no post-up hooks will run",
+        )
+        {
+            if let Ok(entry) = entry {
+                if entry.file_type().unwrap().is_file() {
+                    hooks_files.push(entry.path());
+                }
+            }
+        }
+
+        for path in hooks_files {
+            let s = path.as_os_str();
+            println!(
+                "Running hook {:?}",
+                path.strip_prefix(&package_base).unwrap()
+            );
+
+            Command::new(s).spawn().expect(
+                "hook exited with fail status",
+            );
         }
 
 
