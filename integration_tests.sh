@@ -23,7 +23,10 @@ echo "Using kcov executable: $KCOV_BIN"
 # temporary local directory
 export TEMP_LOCAL="${BASE_DIR}/local/"
 
-stat "${BASE_DIR}/target/debug/dotfiles-manager"
+if [ ! -f "${BASE_DIR}/target/debug/dotfiles-manager" ]; then
+     echo "Could not found executable! Please run cargo build first!"
+     exit 1
+fi
 
 # use this to run the executable
 # generates code coverage data with every run

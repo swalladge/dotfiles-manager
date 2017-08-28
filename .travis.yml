@@ -18,7 +18,8 @@ env:
 script:
   - wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz && tar xzf master.tar.gz && cd kcov-master && mkdir build && cd build && cmake .. && make && make install DESTDIR=../../kcov-build && cd ../.. && rm -rf kcov-master && export KCOV_BIN="./kcov-build/usr/local/bin/kcov"
   - cargo build --verbose
-  - cargo test --verbose
+  - cargo test --verbose --no-run
+  - for file in target/debug/dotfiles_manager-*[^\.d]; do mkdir -p "target/cov/$(basename $file)"; $KCOV_BIN --exclude-pattern=/.cargo,/usr/lib --verify "target/cov/$(basename $file)" "$file"; done &&
   - ./integration_tests.sh
 
 addons:
@@ -34,8 +35,5 @@ addons:
     - zlib1g-dev
 
 after_success: |
-  cargo clean &&
-  cargo test --no-run &&
-  for file in target/debug/dotfiles_manager-*[^\.d]; do mkdir -p "target/cov/$(basename $file)"; $KCOV_BIN --exclude-pattern=/.cargo,/usr/lib --verify "target/cov/$(basename $file)" "$file"; done &&
   $KCOV_BIN --coveralls-id=$TRAVIS_JOB_ID --merge target/cov target/cov/* &&
   echo "Uploaded code coverage"
