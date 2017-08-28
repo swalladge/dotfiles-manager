@@ -20,7 +20,12 @@ cd "$BASE_DIR" || exit 1
 export TEMP_LOCAL="${BASE_DIR}/local/"
 
 # use this to run the executable
-export BIN="cargo run --bin dotfiles-manager -- "
+# generates code coverage data with every run
+# slow but comprehensive
+exe() {
+     [[ -n "$KCOV_BIN" ]] || KCOV_BIN=kcov
+     $KCOV_BIN --exclude-pattern=/.cargo,/usr/lib --verify "target/cov/$(uuidgen)" "${BASE_DIR}/target/debug/dotfiles-manager" "$@"
+}
 
 echo ":: Setup complete, begin tests."
 
@@ -34,7 +39,7 @@ for filename in ${TESTS_DIR}/*; do
      # each test file should be a bash script with no global variables,
      # defining a `run_test` function
      # variables to use:
-     # - BIN          | the binary to run for the dotfiles manager
+     # - exe          | the binary to run for the dotfiles manager
      # - TEMP_LOCAL   | the local directory to do stuff in - make files, etc - reset after each test
      # - BASE_DIR     | root directory of project
      echo ""

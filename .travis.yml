@@ -16,6 +16,7 @@ env:
 
 
 script:
+  - wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz && tar xzf master.tar.gz && cd kcov-master && mkdir build && cd build && cmake .. && make && make install DESTDIR=../../kcov-build && cd ../.. && rm -rf kcov-master && export KCOV_BIN="./kcov-build/usr/local/bin/kcov"
   - cargo build --verbose
   - cargo test --verbose
   - ./integration_tests.sh
@@ -33,16 +34,6 @@ addons:
     - zlib1g-dev
 
 after_success: |
-  wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz &&
-  tar xzf master.tar.gz &&
-  cd kcov-master &&
-  mkdir build &&
-  cd build &&
-  cmake .. &&
-  make &&
-  make install DESTDIR=../../kcov-build &&
-  cd ../.. &&
-  rm -rf kcov-master &&
   cargo clean &&
   cargo test --no-run &&
   for file in target/debug/dotfiles_manager-*[^\.d]; do mkdir -p "target/cov/$(basename $file)"; ./kcov-build/usr/local/bin/kcov --exclude-pattern=/.cargo,/usr/lib --verify "target/cov/$(basename $file)" "$file"; done &&
