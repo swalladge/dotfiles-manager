@@ -14,26 +14,51 @@ get_script_dir () {
 }
 
 export BASE_DIR="$(get_script_dir)"
-cd "$BASE_DIR"
+cd "$BASE_DIR" || exit 1
 
-
-# temporary local in-repo directory
+# temporary local directory
 export TEMP_LOCAL="${BASE_DIR}/local/"
-rm -rf "$TEMP_LOCAL"
-export TEMP_HOME="${BASE_DIR}/local/home/"
-mkdir -p "$TEMP_HOME"
 
-
+# use this to run the executable
 export BIN="cargo run --bin dotfiles-manager -- "
 
-export TESTS_BASE_DIR="${BASE_DIR}/test/integration_tests"
-export TESTS_DIR="${TESTS_BASE_DIR}/tests"
+echo ":: Setup complete, begin tests."
 
-ok=0
+count=0
+TESTS_DIR="${BASE_DIR}/test/integration_tests"
 for filename in ${TESTS_DIR}/*; do
+
+     rm -rf "$TEMP_LOCAL"
+     mkdir -p "$TEMP_LOCAL"
+
+     # each test file should be a bash script with no global variables,
+     # defining a `run_test` function
+     # variables to use:
+     # - BIN          | the binary to run for the dotfiles manager
+     # - TEMP_LOCAL   | the local directory to do stuff in - make files, etc - reset after each test
+     # - BASE_DIR     | root directory of project
+     echo ""
+     echo ":: Running test $(basename $filename)"
      source "${filename}"
+     run_test
+
+     # check the return value - if non-zero, we want to exit with that value
+     # but still run the rest of the tests
      LAST=$?
-     [ "$LAST" == "0" ] || ok="$LAST"
+     if [ "$LAST" != "0" ]; then
+          echo ""
+          echo ":: Test failed with exit code ${LAST}"
+          ((count++))
+     fi
 done
+
+if [ "$count" != "0" ]; then
+     [ "$count" != "1" ] && plural="s"
+     echo ""
+     echo ":: ${count} test${plural} failed!"
+else
+     echo ""
+     echo ":: All tests successful!"
+fi
 
 exit "$LAST"
