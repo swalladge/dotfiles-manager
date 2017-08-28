@@ -15,19 +15,26 @@ get_script_dir () {
 
 export BASE_DIR="$(get_script_dir)"
 cd "$BASE_DIR" || exit 1
+echo "BASE_DIR: $BASE_DIR"
 
 [[ -n "$KCOV_BIN" ]] || KCOV_BIN=kcov
+echo "Using kcov executable: $KCOV_BIN"
 
 # temporary local directory
 export TEMP_LOCAL="${BASE_DIR}/local/"
+
+stat "${BASE_DIR}/target/debug/dotfiles-manager"
 
 # use this to run the executable
 # generates code coverage data with every run
 # slow but comprehensive
 exe() {
+     local previous="$(pwd)"
+     cd "$BASE_DIR"
      local coverage_dir="target/cov/$(uuidgen)"
      mkdir -p "$coverage_dir"
      $KCOV_BIN --exclude-pattern=/.cargo,/usr/lib --verify "$coverage_dir" "${BASE_DIR}/target/debug/dotfiles-manager" "$@"
+     cd "$previous"
 }
 
 echo ":: Setup complete, begin tests."
