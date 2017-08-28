@@ -18,6 +18,7 @@ env:
 script:
   - cargo build --verbose
   - cargo test --verbose
+  - ./integration_tests.sh
 
 addons:
   apt:
