@@ -21,7 +21,7 @@ echo "BASE_DIR: $BASE_DIR"
 echo "Using kcov executable: $KCOV_BIN"
 
 # temporary local directory
-export TEMP_LOCAL="${BASE_DIR}/local/"
+export TEMP_LOCAL="${BASE_DIR}/local"
 
 if [ ! -f "${BASE_DIR}/target/debug/dotfiles-manager" ]; then
      echo "Could not found executable! Please run cargo build first!"
@@ -38,6 +38,30 @@ exe() {
      mkdir -p "$coverage_dir"
      $KCOV_BIN --exclude-pattern=/.cargo,/usr/lib --verify "$coverage_dir" "${BASE_DIR}/target/debug/dotfiles-manager" "$@"
      cd "$previous"
+}
+
+# assert helper functions
+# inspiration from rcm test helpers - https://github.com/thoughtbot/rcm/blob/master/test/helper.sh
+assert() {
+  local msg="$1"; shift
+  test "$@" || { echo "Failed assertion: $msg"; return 1; }
+  return 0
+}
+
+assert_fail() {
+  local msg="$1"; shift
+  test "$@" && { echo "Failed assertion: $msg"; return 1; }
+  return 0
+}
+
+
+assert_link() {
+  local from="$1" to="$2"
+  local target="$(readlink "$from")"
+
+  assert "$from should be a symlink" -h "$from" || return 1
+  assert "$from should resolve to $to, resolved to $target" "$target" = "$to" || return 1
+  return 0
 }
 
 echo ":: Setup complete, begin tests."
@@ -79,4 +103,6 @@ else
      echo ":: All tests successful!"
 fi
 
+# cleanup
+rm -rf "$TEMP_LOCAL"
 exit "$LAST"
