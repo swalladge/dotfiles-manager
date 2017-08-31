@@ -89,15 +89,17 @@ for filename in ${TESTS_DIR}/*; do
      LAST=$?
      if [ "$LAST" != "0" ]; then
           echo ""
-          echo ":: Test failed with exit code ${LAST}"
+          echo ":: Test failed with return code ${LAST}"
           ((count++))
      fi
 done
 
+CODE=0
 if [ "$count" != "0" ]; then
      [ "$count" != "1" ] && plural="s"
      echo ""
      echo ":: ${count} test${plural} failed!"
+     CODE=1
 else
      echo ""
      echo ":: All tests successful!"
@@ -105,4 +107,4 @@ fi
 
 # cleanup
 rm -rf "$TEMP_LOCAL"
-exit "$LAST"
+exit "$CODE"
