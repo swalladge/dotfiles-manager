@@ -68,6 +68,7 @@ impl<'a> Runner<'a> {
 
         // host specific config
         let mut host_files_base = package_base.clone();
+        host_files_base.push("hosts");
         host_files_base.push(&args.hostname);
         host_files_base.push("files");
 
