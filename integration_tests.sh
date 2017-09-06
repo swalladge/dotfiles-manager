@@ -32,12 +32,21 @@ fi
 # generates code coverage data with every run
 # slow but comprehensive
 exe() {
+
+     # get the coverage directory for kcov
      local previous="$(pwd)"
      cd "$BASE_DIR"
      local coverage_dir="target/cov/$(uuidgen)"
      mkdir -p "$coverage_dir"
-     $KCOV_BIN --exclude-pattern=/.cargo,/usr/lib --verify "$coverage_dir" "${BASE_DIR}/target/debug/dotfiles-manager" "$@"
+     local abs_coverage_dir="$(readlink -f ${coverage_dir})"
      cd "$previous"
+
+     $KCOV_BIN --exclude-pattern=/.cargo,/usr/lib --verify "$coverage_dir" "${BASE_DIR}/target/debug/dotfiles-manager" "$@"
+}
+
+# use this to run the executable without kcov (faster, use for setup tasks)
+exe_sans() {
+     "${BASE_DIR}/target/debug/dotfiles-manager" "$@"
 }
 
 # assert helper functions
@@ -76,7 +85,8 @@ for filename in ${TESTS_DIR}/*; do
      # each test file should be a bash script with no global variables,
      # defining a `run_test` function
      # variables to use:
-     # - exe          | the binary to run for the dotfiles manager
+     # - exe          | the binary to run for the dotfiles manager (with kcov)
+     # - exe_sans     | the binary to run for the dotfiles manager (sans kcov)
      # - TEMP_LOCAL   | the local directory to do stuff in - make files, etc - reset after each test
      # - BASE_DIR     | root directory of project
      echo ""
