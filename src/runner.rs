@@ -73,7 +73,7 @@ impl<'a> Runner<'a> {
 
                 let host_dirs = get_dirs_to_create(&host_files_base);
                 for dir in host_dirs {
-                    let base = dir.strip_prefix(&global_files_base).unwrap();
+                    let base = dir.strip_prefix(&host_files_base).unwrap();
                     let new_dir = args.target_dir.join(base);
 
                     let result = fs::create_dir_all(new_dir);
@@ -178,7 +178,7 @@ impl<'a> Runner<'a> {
 
                 let host_dirs = get_dirs_to_create(&host_files_base);
                 for dir in host_dirs {
-                    let base = dir.strip_prefix(&global_files_base).unwrap();
+                    let base = dir.strip_prefix(&host_files_base).unwrap();
                     let new_dir = args.target_dir.join(base);
 
                     let result = fs::create_dir_all(new_dir);
