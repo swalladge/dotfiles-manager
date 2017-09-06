@@ -26,9 +26,37 @@ lower level requirements.
 # Testing
 
 For continuous integration, all tests are run on every push with Travis.
-Tests are run by cargo with `cargo test` or for convenience, with make (`make test`).
 
-Integration tests WIP
+Unit tests are run by cargo with `cargo test`. These are tests on individual
+functions and small functionality within each module, created as standard in
+rust. ([Rust book reference on testing](https://doc.rust-lang.org/stable/book/second-edition/ch11-01-writing-tests.html))
+
+Integration tests are for testing the program as a whole. They are important
+for this software, since its core functionality is working with files and
+links; many side effects. These are implemented with custom bash scripts. Run
+as follows:
+
+```
+$ ./integration_tests.sh
+
+$ # or for a single test:
+$ ./integration_tests.sh test_no_force_install.sh
+```
+
+Each test must a bash script in the `./test/integration_tests/`. The main bash
+script runner runs each test by sourcing the bash script and calling the
+`run_test` function. All code should be inside the `run_test` function and
+locally scoped to avoid clashing with the main script or other tests.
+The tests get some variables to use:
+
+- `exe`           | the binary to run for the dotfiles manager (with kcov)
+- `exe_sans`      | the binary to run for the dotfiles manager (sans kcov)
+- `$TEMP_LOCAL`   | the local directory to do stuff in - make files, etc - reset after each test
+- `$BASE_DIR`     | root directory of project
+
+Basically, for anything new, there should be unit tests that cover any
+functions that don't have IO side effects, and integration tests for any
+functionality that interacts with std{in,out,err} or files/link/directories.
 
 
 # Code coverage
@@ -43,11 +71,11 @@ They can be generated and viewed locally with `make coverage`.
 
 - [x] link files from a directory (package) stow-style
 - [ ] remove links from a package
-- [ ] host specific config
-- [ ] run scripts as hooks before and after installing/removing
-- [ ] force install/remove links
+- [-] host specific config
+- [-] run scripts as hooks before and after installing/removing
+- [x] force install/remove links
 - [ ] run in test mode (no filesystem changes)
-- [ ] integration tests
+- [x] integration tests
 - [ ] stable cli api
 
 
