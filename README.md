@@ -71,12 +71,13 @@ They can be generated and viewed locally with `make coverage`.
 
 - [x] link files from a directory (package) stow-style
 - [ ] remove links from a package
-- [-] host specific config
-- [-] run scripts as hooks before and after installing/removing
+- [x] host specific config
+- [x] run scripts as hooks before and after installing/removing
 - [x] force install/remove links
 - [ ] run in test mode (no filesystem changes)
 - [x] integration tests
 - [ ] stable cli api
+- [ ] error handling and recovery for installing/script-running
 
 
 # Usage
