@@ -1,0 +1,3 @@
+# global zshrc
+
+HISTFILE=~/.histfile

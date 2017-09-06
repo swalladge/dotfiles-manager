@@ -30,6 +30,7 @@ fn run() -> i32 {
 
     let success = match args.command {
         Command::Install => runner.install(),
+        Command::Uninstall => runner.uninstall(),
         // TODO: implement others
         _ => {
             println!("Valid subcommand required!");

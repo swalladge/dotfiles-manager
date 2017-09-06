@@ -92,6 +92,7 @@ pub fn get_args(matches: clap::ArgMatches) -> Result<Args, &'static str> {
         command: match matches.subcommand_name() {
             Some("install") => Command::Install,
             Some("uninstall") => Command::Uninstall,
+            Some("remove") => Command::Uninstall,
             Some("add") => Command::Add,
             _ => Command::Empty,
         },
