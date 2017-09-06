@@ -28,6 +28,12 @@ if [ ! -f "${BASE_DIR}/target/debug/dotfiles-manager" ]; then
      exit 1
 fi
 
+# if first argument, then use that as the file basename of the test we want to run
+single_test=""
+if [ "$1" ]; then
+  single_test="$1"
+fi
+
 # use this to run the executable
 # generates code coverage data with every run
 # slow but comprehensive
@@ -79,6 +85,11 @@ count=0
 TESTS_DIR="${BASE_DIR}/test/integration_tests"
 for filename in ${TESTS_DIR}/*; do
 
+    # if we want a single test, skip if doesn't match
+    if [ "$single_test" -a "$single_test" != "$(basename "$filename")" ]; then
+      continue
+    fi
+
      rm -rf "$TEMP_LOCAL"
      mkdir -p "$TEMP_LOCAL"
 
@@ -90,7 +101,7 @@ for filename in ${TESTS_DIR}/*; do
      # - TEMP_LOCAL   | the local directory to do stuff in - make files, etc - reset after each test
      # - BASE_DIR     | root directory of project
      echo ""
-     echo ":: Running test $(basename $filename)"
+     echo ":: Running test $(basename "$filename")"
      source "${filename}"
      run_test
 
