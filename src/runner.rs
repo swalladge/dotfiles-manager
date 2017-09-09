@@ -2,7 +2,7 @@ use std::path::PathBuf;
 use std::fs;
 use std::collections::{HashMap, HashSet};
 
-use args::Args;
+use args::{Args, AddArgs};
 use hooks;
 use file_ops::{FS, Mode};
 
@@ -278,6 +278,28 @@ impl<'a> Runner<'a> {
         }
 
         return true;
+    }
+
+    pub fn add(&self) -> bool {
+        // get the subcommand arguments - guaranteed to be present because this function only
+        // called when add subcommend used
+        // let add_args: AddArgs = self.args.add_args.unwrap().clone();
+
+        let add_args = match &self.args.add_args {
+            &Some(ref args) => args,
+            _ => panic!("should never happen"),
+        };
+
+        println!("Adding file {:?}", add_args.filename);
+        println!("to package {:?}", add_args.package);
+        println!(
+            "host-specific mode is {}",
+            if add_args.host_specific { "on" } else { "off" }
+        );
+
+        // TODO: implement
+
+        true
     }
 }
 

@@ -1,4 +1,7 @@
+
+#[macro_use]
 extern crate clap;
+
 extern crate sys_info;
 
 use args::Command;
@@ -31,6 +34,7 @@ fn run() -> i32 {
     let success = match args.command {
         Command::Install => runner.install(),
         Command::Uninstall => runner.uninstall(),
+        Command::Add => runner.add(),
         // TODO: implement others
         _ => {
             println!("Valid subcommand required!");

@@ -12,6 +12,12 @@ pub enum Command {
     Empty,
 }
 
+pub struct AddArgs {
+    pub host_specific: bool,
+    pub package: String,
+    pub filename: PathBuf,
+}
+
 pub struct Args {
     pub dir: PathBuf,
     pub target_dir: PathBuf,
@@ -21,6 +27,7 @@ pub struct Args {
     pub verbose: bool,
     pub packages: Vec<String>,
     pub command: Command,
+    pub add_args: Option<AddArgs>,
 }
 
 pub fn get_args(matches: clap::ArgMatches) -> Result<Args, &'static str> {
@@ -68,25 +75,38 @@ pub fn get_args(matches: clap::ArgMatches) -> Result<Args, &'static str> {
         }
     };
 
+    let add_args = match matches.subcommand() {
+        ("add", Some(m)) => {
+            Some(AddArgs {
+                host_specific: m.is_present("host"),
+                package: m.value_of("package").unwrap().to_owned(),
+                filename: {
+                    let filename = PathBuf::from(m.value_of("file").unwrap());
+                    // don't allow adding a file that is a symlink
+                    if filename.read_link().is_ok() {
+                        return Err("cannot add symbolic link");
+                    }
+                    match fs::canonicalize(filename) {
+                        Ok(path) => path,
+                        Err(msg) => {
+                            println!("{}", msg);
+                            return Err("Could not add file");
+                        }
+                    }
+                },
+            })
+        }
+        _ => None,
+
+    };
+
     let args = Args {
         dir: dir,
-
         target_dir: target_dir,
-
-        // get the packages list for the command
-        packages: match matches.subcommand_name() {
-            Some(m) => {
-                match matches.subcommand_matches(m) {
-                    Some(m2) => {
-                        let mut vec = Vec::new();
-                        vec.extend(m2.values_of("PACKAGE").unwrap().map(|x| x.to_owned()));
-                        vec
-                    }
-                    _ => vec![],
-                }
-            }
-            _ => vec![],
-        },
+        force: matches.is_present("force"),
+        verbose: matches.is_present("verbose"),
+        hostname: hostname,
+        test: matches.is_present("test"),
 
         // get the packages list for the command
         command: match matches.subcommand_name() {
@@ -97,13 +117,19 @@ pub fn get_args(matches: clap::ArgMatches) -> Result<Args, &'static str> {
             _ => Command::Empty,
         },
 
-        force: matches.is_present("force"),
+        // get the packages list for the command
+        packages: match matches.subcommand() {
+            ("install", Some(m)) |
+            ("uninstall", Some(m)) |
+            ("remove", Some(m)) => {
+                let mut vec = Vec::new();
+                vec.extend(m.values_of("PACKAGE").unwrap().map(|x| x.to_owned()));
+                vec
+            }
+            _ => vec![],
+        },
 
-        verbose: matches.is_present("verbose"),
-
-        hostname: hostname,
-
-        test: matches.is_present("test"),
+        add_args: add_args,
     };
     Ok(args)
 }
@@ -250,6 +276,69 @@ mod tests {
         ];
         let args = args::get_args(app.get_matches_from(app_args)).unwrap();
         assert_eq!(args.target_dir, PathBuf::from(&target_dir));
+    }
+
+
+    #[test]
+    fn check_add_file_args() {
+        let app = app::new();
+        let target_dir = fs::canonicalize("test/home").unwrap();
+        let file = fs::canonicalize("test/repo/vim/files/.vimrc").unwrap();
+        let app_args = vec![
+            "dotfiles-manager",
+            "--target",
+            target_dir.to_str().unwrap(),
+            "add",
+            "test/repo/vim/files/.vimrc",
+            "--host",
+            "--package",
+            "zsh",
+        ];
+        let args = args::get_args(app.get_matches_from(app_args)).unwrap();
+        let add_args = args.add_args.unwrap();
+        assert_eq!((&add_args).host_specific, true);
+        assert_eq!((&add_args).filename, file);
+        assert_eq!((&add_args).package, "zsh");
+    }
+
+
+    #[test]
+    fn check_add_file_no_package() {
+        let app = app::new();
+        let target_dir = fs::canonicalize("test/home").unwrap();
+        let file = fs::canonicalize("test/repo/vim/files/.vimrc").unwrap();
+        let app_args = vec![
+            "dotfiles-manager",
+            "--target",
+            target_dir.to_str().unwrap(),
+            "add",
+            "test/repo/vim/files/.vimrc",
+            "--host",
+        ];
+        let matches = app.get_matches_from_safe(app_args);
+        assert!(
+            matches.is_err(),
+            "should be Err because package name not given"
+        );
+    }
+
+    #[test]
+    fn check_add_file_no_host() {
+        let app = app::new();
+        let target_dir = fs::canonicalize("test/home").unwrap();
+        let file = fs::canonicalize("test/repo/vim/files/.vimrc").unwrap();
+        let app_args = vec![
+            "dotfiles-manager",
+            "--target",
+            target_dir.to_str().unwrap(),
+            "add",
+            "test/repo/vim/files/.vimrc",
+            "--package",
+            "zsh",
+        ];
+        let args = args::get_args(app.get_matches_from(app_args)).unwrap();
+        let add_args = args.add_args.unwrap();
+        assert_eq!((&add_args).host_specific, false);
     }
 
 }

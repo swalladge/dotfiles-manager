@@ -64,17 +64,20 @@ pub fn new() -> App<'static, 'static> {
     .subcommand(
         SubCommand::with_name("add")
             .about("add a file to package")
+            .arg(Arg::with_name("host").short("b").long("host").help(
+                "add as host-specific",
+            ))
+            .arg(Arg::with_name("package").short("p").long("package")
+                 .takes_value(true)
+                 .required(true)
+                 .help(
+                "package name to install to",
+            ))
             .arg(
                 Arg::with_name("file")
                     .help("dotfile to add/adopt")
                     .required(true),
             )
-            .arg(Arg::with_name("host").short("b").long("host").help(
-                "add as host-specific",
-            ))
-            .arg(Arg::with_name("package").short("p").long("package").help(
-                "package name to install to",
-            )),
     )
 }
 
