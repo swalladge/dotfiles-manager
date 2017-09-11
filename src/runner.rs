@@ -288,6 +288,9 @@ impl<'a> Runner<'a> {
             _ => panic!("should never happen"),
         };
 
+        let mut f: FS = FS::new();
+        f.set_mode(Mode::Real);
+
         println!("Adding file {:?}", add_args.filename);
         println!("to package {:?}", add_args.package);
         println!(
@@ -295,9 +298,64 @@ impl<'a> Runner<'a> {
             if add_args.host_specific { "on" } else { "off" }
         );
 
-        // TODO: implement
+        let mut target = self.args.dir.clone();
+        target.push(&add_args.package);
 
-        true
+        if add_args.host_specific {
+            target.push("hosts");
+            target.push(&self.args.hostname);
+        }
+        target.push("files");
+
+        // TODO: validate that this is in the target dir
+        let file_base = add_args
+            .filename
+            .strip_prefix(&self.args.target_dir)
+            .unwrap();
+        target.push(file_base);
+
+        let exists = target.exists();
+        if exists {
+            if !self.args.force {
+                println!("{:?} exists and force not set", &target);
+                println!("Not overwriting.");
+                return false;
+            } else {
+                println!("Force set and repo file exists - deleting existing.");
+                let res;
+                if target.is_dir() {
+                    res = fs::remove_dir_all(&target);
+                } else {
+                    res = fs::remove_file(&target);
+                }
+                match res {
+                    Ok(_) => {
+                        println!("Deleted {:?}", &target);
+                    }
+                    Err(msg) => {
+                        println!("Failed to remove {:?} : {}", &target, msg);
+                        return false;
+                    }
+                }
+            }
+        }
+
+        match fs::rename(&add_args.filename, &target) {
+            Ok(_) => (),
+            Err(msg) => {
+                println!("{}", msg);
+                return false;
+            }
+        }
+
+        let success = f.create_link(&add_args.filename, &target, self.args.force);
+        if success {
+            println!("Successfully added file!");
+            return true;
+        } else {
+            println!("Failed to create link.");
+            return false;
+        }
     }
 }
 

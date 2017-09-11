@@ -93,6 +93,7 @@ echo ":: Setup complete, begin tests."
 
 count=0
 TESTS_DIR="${BASE_DIR}/test/integration_tests"
+failed_tests=()
 for filename in ${TESTS_DIR}/*; do
 
     # if we want a single test, skip if doesn't match
@@ -121,6 +122,7 @@ for filename in ${TESTS_DIR}/*; do
      if [ "$LAST" != "0" ]; then
           echo ""
           echo ":: Test failed with return code ${LAST}"
+          failed_tests+=("$(basename "$filename")")
           ((count++))
      fi
 done
@@ -129,7 +131,12 @@ CODE=0
 if [ "$count" != "0" ]; then
      [ "$count" != "1" ] && plural="s"
      echo ""
-     echo ":: ${count} test${plural} failed!"
+     echo ":: ${count} test${plural} failed:"
+
+     for name in "${failed_tests[@]}"; do
+       echo "   - $name"
+     done
+
      CODE=1
 else
      echo ""

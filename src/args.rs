@@ -75,6 +75,8 @@ pub fn get_args(matches: clap::ArgMatches) -> Result<Args, &'static str> {
         }
     };
 
+    // get the args for the add command
+    // also currently checks to see if the file exists and isn't a symlink
     let add_args = match matches.subcommand() {
         ("add", Some(m)) => {
             Some(AddArgs {
