@@ -340,10 +340,12 @@ impl<'a> Runner<'a> {
             }
         }
 
+        fs::create_dir_all(&target.parent().unwrap());
+
         match fs::rename(&add_args.filename, &target) {
             Ok(_) => (),
             Err(msg) => {
-                println!("{}", msg);
+                println!("Moving file to repo failed: {}", msg);
                 return false;
             }
         }
