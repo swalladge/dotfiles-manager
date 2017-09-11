@@ -17,6 +17,13 @@ export BASE_DIR="$(get_script_dir)"
 cd "$BASE_DIR" || exit 1
 echo "BASE_DIR: $BASE_DIR"
 
+NO_KCOV=""
+if [ "$1" = "--no-kcov" ]; then
+  NO_KCOV="true"
+  echo "Not generating coverage data."
+  shift
+fi
+
 [[ -n "$KCOV_BIN" ]] || KCOV_BIN=kcov
 echo "Using kcov executable: $KCOV_BIN"
 
@@ -38,21 +45,24 @@ fi
 # generates code coverage data with every run
 # slow but comprehensive
 exe() {
+  if [ "$NO_KCOV" ]; then
+    exe_sans "$@"
+  else
+    # get the coverage directory for kcov
+    local previous="$(pwd)"
+    cd "$BASE_DIR"
+    local coverage_dir="target/cov/$(uuidgen)"
+    mkdir -p "$coverage_dir"
+    local abs_coverage_dir="$(readlink -f ${coverage_dir})"
+    cd "$previous"
 
-     # get the coverage directory for kcov
-     local previous="$(pwd)"
-     cd "$BASE_DIR"
-     local coverage_dir="target/cov/$(uuidgen)"
-     mkdir -p "$coverage_dir"
-     local abs_coverage_dir="$(readlink -f ${coverage_dir})"
-     cd "$previous"
-
-     $KCOV_BIN --exclude-pattern=/.cargo,/usr/lib --verify "$coverage_dir" "${BASE_DIR}/target/debug/dotfiles-manager" "$@"
+    $KCOV_BIN --exclude-pattern=/.cargo,/usr/lib --verify "$coverage_dir" "${BASE_DIR}/target/debug/dotfiles-manager" "$@"
+  fi
 }
 
 # use this to run the executable without kcov (faster, use for setup tasks)
 exe_sans() {
-     "${BASE_DIR}/target/debug/dotfiles-manager" "$@"
+   "${BASE_DIR}/target/debug/dotfiles-manager" "$@"
 }
 
 # assert helper functions

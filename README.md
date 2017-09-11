@@ -41,6 +41,10 @@ $ ./integration_tests.sh
 
 $ # or for a single test:
 $ ./integration_tests.sh test_no_force_install.sh
+
+$ # or to disable kcov (useful for local testing - faster)
+$ ./integration_tests.sh --no-kcov
+$ ./integration_tests.sh --no-kcov test_no_force_install.sh
 ```
 
 Each test must a bash script in the `./test/integration_tests/`. The main bash

@@ -282,9 +282,7 @@ impl<'a> Runner<'a> {
 
     pub fn add(&self) -> bool {
         // get the subcommand arguments - guaranteed to be present because this function only
-        // called when add subcommend used
-        // let add_args: AddArgs = self.args.add_args.unwrap().clone();
-
+        // called when add subcommand used
         let add_args = match &self.args.add_args {
             &Some(ref args) => args,
             _ => panic!("should never happen"),
