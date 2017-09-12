@@ -4,7 +4,7 @@ use std::collections::{HashMap, HashSet};
 
 use args::{Args, AddArgs};
 use hooks;
-use file_ops::{FS, Mode};
+use file_ops::FS;
 
 
 pub struct Runner<'a> {
@@ -20,8 +20,7 @@ impl<'a> Runner<'a> {
 
         let args = self.args;
 
-        let mut f: FS = FS::new();
-        f.set_mode(Mode::Real);
+        let f: FS = FS::new(self.args.force, self.args.test);
 
         for package1 in &args.packages {
 
@@ -113,7 +112,7 @@ impl<'a> Runner<'a> {
             for (dest, file) in dests {
                 // dest is the new file to be created
                 // it should be a symbolic link pointing to file
-                let ok = f.create_link(&dest, &file, args.force);
+                let ok = f.create_link(&dest, &file);
                 if !ok {
                     return false;
                 }
@@ -142,8 +141,7 @@ impl<'a> Runner<'a> {
 
         let args = self.args;
 
-        let mut f: FS = FS::new();
-        f.set_mode(Mode::Real);
+        let f: FS = FS::new(self.args.force, self.args.test);
 
         for package1 in &args.packages {
 
@@ -288,8 +286,7 @@ impl<'a> Runner<'a> {
             _ => panic!("should never happen"),
         };
 
-        let mut f: FS = FS::new();
-        f.set_mode(Mode::Real);
+        let mut f: FS = FS::new(self.args.force, self.args.test);
 
         println!("Adding file {:?}", add_args.filename);
         println!("to package {:?}", add_args.package);
@@ -350,7 +347,7 @@ impl<'a> Runner<'a> {
             }
         }
 
-        let success = f.create_link(&add_args.filename, &target, self.args.force);
+        let success = f.create_link(&add_args.filename, &target);
         if success {
             println!("Successfully added file!");
             return true;
