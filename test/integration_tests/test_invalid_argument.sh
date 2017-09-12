@@ -2,9 +2,9 @@
 
 run_test() {
      echo "checking invalid arguments"
-     out=$(exe lololol --wat 2>&1)
+     out=$(exe -t /doesntexist/lol install something 2>&1)
 
-     echo $out | grep -e 'error: Found argument' || return 1
+     echo $out | grep -e 'Argument error: ' || return 1
 
      return 0
 }
