@@ -16,6 +16,9 @@ for file in target/debug/dotfiles_manager-*[^\.d]; do
      kcov --exclude-pattern=/.cargo,/usr/lib --verify "target/cov/$(basename $file)" "$file"
 done
 
+cargo build
+./integration_tests.sh
+
 kcov --merge target/cov target/cov/*
 
 echo "merged coverage report saved to: target/cov/index.html"

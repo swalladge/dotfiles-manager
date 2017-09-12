@@ -71,10 +71,23 @@ project](https://coveralls.io/github/swalladge/dotfiles-manager).
 They can be generated and viewed locally with `make coverage`.
 
 
+# Makefile
+
+For convenience, a `Makefile` is included with some shortcut commands:
+
+- `clean`: cleans the build directory
+- `build`: builds the software
+- `coverage`: generates the code coverage report (time consuming)
+- `unit-test`: runs the unit tests
+- `integration-test`: runs the integration tests
+- `test`: runs all tests
+- `cloc`: shows a report on lines of code (requires the `cloc` program installed)
+
+
 # Features
 
 - [x] link files from a directory (package) stow-style
-- [ ] remove links from a package
+- [x] remove links from a package
 - [x] host specific config
 - [x] run scripts as hooks before and after installing/removing
 - [x] force install/remove links

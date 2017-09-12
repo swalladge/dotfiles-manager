@@ -31,7 +31,7 @@ echo "Using kcov executable: $KCOV_BIN"
 export TEMP_LOCAL="${BASE_DIR}/local"
 
 if [ ! -f "${BASE_DIR}/target/debug/dotfiles-manager" ]; then
-     echo "Could not found executable! Please run cargo build first!"
+     echo "Could not find executable! Please run cargo build first!"
      exit 1
 fi
 
