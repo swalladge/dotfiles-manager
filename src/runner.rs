@@ -51,7 +51,7 @@ impl<'a> Runner<'a> {
                 let base = dir.strip_prefix(&global_files_base).unwrap();
                 let new_dir = args.target_dir.join(base);
 
-                let result = f.create_dir_all(new_dir);
+                let result = f.create_dir_all(&new_dir);
                 match result {
                     Ok(_) => println!("created ok!"),
                     Err(msg) => println!("fail: {}", msg),
@@ -74,7 +74,7 @@ impl<'a> Runner<'a> {
                     let base = dir.strip_prefix(&host_files_base).unwrap();
                     let new_dir = args.target_dir.join(base);
 
-                    let result = f.create_dir_all(new_dir);
+                    let result = f.create_dir_all(&new_dir);
                     match result {
                         Ok(_) => println!("created ok!"),
                         Err(msg) => println!("fail: {}", msg),
@@ -178,7 +178,7 @@ impl<'a> Runner<'a> {
                     let base = dir.strip_prefix(&host_files_base).unwrap();
                     let new_dir = args.target_dir.join(base);
 
-                    let result = f.create_dir_all(new_dir);
+                    let result = f.create_dir_all(&new_dir);
                     match result {
                         Ok(_) => println!("created ok!"),
                         Err(msg) => println!("fail: {}", msg),
@@ -303,11 +303,15 @@ impl<'a> Runner<'a> {
         }
         target.push("files");
 
-        // TODO: validate that this is in the target dir
-        let file_base = add_args
+        let file_base = match add_args
             .filename
-            .strip_prefix(&self.args.target_dir)
-            .unwrap();
+            .strip_prefix(&self.args.target_dir) {
+                Ok(path) => path,
+                Err(_) => {
+                    println!("File to add must be in the target directory.");
+                    return false;
+                }
+            };
         target.push(file_base);
 
         let exists = f.exists(&target);
@@ -336,7 +340,7 @@ impl<'a> Runner<'a> {
             }
         }
 
-        let res = f.create_dir_all(&target.parent().unwrap());
+        let res = f.create_dir_all(&target.parent().unwrap().to_owned());
         match res {
             Ok(_) => (),
             Err(msg) => {
