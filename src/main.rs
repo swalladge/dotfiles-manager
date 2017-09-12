@@ -34,6 +34,10 @@ fn run() -> i32 {
         Command::Install => runner.install(),
         Command::Uninstall => runner.uninstall(),
         Command::Add => runner.add(),
+        Command::Empty => {
+            println!("No subcommand given!");
+            false
+        }
     };
 
     if success {
