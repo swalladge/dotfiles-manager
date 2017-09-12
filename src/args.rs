@@ -115,7 +115,9 @@ pub fn get_args(matches: clap::ArgMatches) -> Result<Args, &'static str> {
             Some("uninstall") => Command::Uninstall,
             Some("remove") => Command::Uninstall,
             Some("add") => Command::Add,
-            _ => Command::Empty,
+            _ => {
+                return Err("Invalid command got through");
+            }
         },
 
         // get the packages list for the command
