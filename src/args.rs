@@ -9,7 +9,6 @@ pub enum Command {
     Install,
     Uninstall,
     Add,
-    Empty,
 }
 
 pub struct AddArgs {

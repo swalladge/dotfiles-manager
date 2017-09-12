@@ -34,11 +34,6 @@ fn run() -> i32 {
         Command::Install => runner.install(),
         Command::Uninstall => runner.uninstall(),
         Command::Add => runner.add(),
-        // TODO: implement others
-        _ => {
-            println!("Valid subcommand required!");
-            false
-        }
     };
 
     if success {

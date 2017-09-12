@@ -303,15 +303,13 @@ impl<'a> Runner<'a> {
         }
         target.push("files");
 
-        let file_base = match add_args
-            .filename
-            .strip_prefix(&self.args.target_dir) {
-                Ok(path) => path,
-                Err(_) => {
-                    println!("File to add must be in the target directory.");
-                    return false;
-                }
-            };
+        let file_base = match add_args.filename.strip_prefix(&self.args.target_dir) {
+            Ok(path) => path,
+            Err(_) => {
+                println!("File to add must be in the target directory.");
+                return false;
+            }
+        };
         target.push(file_base);
 
         let exists = f.exists(&target);
