@@ -1,8 +1,7 @@
 use std::path::PathBuf;
-use std::fs;
 use std::collections::{HashMap, HashSet};
 
-use args::{Args, AddArgs};
+use args::Args;
 use hooks;
 use file_ops::FS;
 
@@ -47,12 +46,12 @@ impl<'a> Runner<'a> {
             global_files_base.push("files");
 
             // create all the directories required
-            let dirs = get_dirs_to_create(&global_files_base);
+            let dirs = f.get_dirs_to_create(&global_files_base);
             for dir in dirs {
                 let base = dir.strip_prefix(&global_files_base).unwrap();
                 let new_dir = args.target_dir.join(base);
 
-                let result = fs::create_dir_all(new_dir);
+                let result = f.create_dir_all(new_dir);
                 match result {
                     Ok(_) => println!("created ok!"),
                     Err(msg) => println!("fail: {}", msg),
@@ -70,12 +69,12 @@ impl<'a> Runner<'a> {
 
             if f.dir_exists(&host_files_base) {
 
-                let host_dirs = get_dirs_to_create(&host_files_base);
+                let host_dirs = f.get_dirs_to_create(&host_files_base);
                 for dir in host_dirs {
                     let base = dir.strip_prefix(&host_files_base).unwrap();
                     let new_dir = args.target_dir.join(base);
 
-                    let result = fs::create_dir_all(new_dir);
+                    let result = f.create_dir_all(new_dir);
                     match result {
                         Ok(_) => println!("created ok!"),
                         Err(msg) => println!("fail: {}", msg),
@@ -84,10 +83,10 @@ impl<'a> Runner<'a> {
                 }
 
                 // symlink the files
-                host_files = get_files_to_symlink(&host_files_base);
+                host_files = f.get_files_to_symlink(&host_files_base);
             }
 
-            let files = get_files_to_symlink(&global_files_base);
+            let files = f.get_files_to_symlink(&global_files_base);
 
             // map destinations to link targets
             // this method allows host-specfic files to take precedence
@@ -174,12 +173,12 @@ impl<'a> Runner<'a> {
 
             if f.dir_exists(&host_files_base) {
 
-                let host_dirs = get_dirs_to_create(&host_files_base);
+                let host_dirs = f.get_dirs_to_create(&host_files_base);
                 for dir in host_dirs {
                     let base = dir.strip_prefix(&host_files_base).unwrap();
                     let new_dir = args.target_dir.join(base);
 
-                    let result = fs::create_dir_all(new_dir);
+                    let result = f.create_dir_all(new_dir);
                     match result {
                         Ok(_) => println!("created ok!"),
                         Err(msg) => println!("fail: {}", msg),
@@ -188,10 +187,10 @@ impl<'a> Runner<'a> {
                 }
 
                 // symlink the files
-                host_files = get_files_to_symlink(&host_files_base);
+                host_files = f.get_files_to_symlink(&host_files_base);
             }
 
-            let files = get_files_to_symlink(&global_files_base);
+            let files = f.get_files_to_symlink(&global_files_base);
 
             // map destinations to link targets
             // this method allows host-specfic files to take precedence
@@ -218,7 +217,7 @@ impl<'a> Runner<'a> {
                 // it should be a symbolic link pointing to file
 
                 // if the file doesn't exist, then don't do anything
-                if !dest.exists() {
+                if !f.exists(&dest) {
                     continue;
                 }
 
@@ -245,9 +244,9 @@ impl<'a> Runner<'a> {
                 // delete!
                 let res;
                 if dest.is_dir() {
-                    res = fs::remove_dir_all(&dest);
+                    res = f.remove_dir_all(&dest);
                 } else {
-                    res = fs::remove_file(&dest);
+                    res = f.remove_file(&dest);
                 }
                 match res {
                     Ok(_) => {
@@ -286,7 +285,7 @@ impl<'a> Runner<'a> {
             _ => panic!("should never happen"),
         };
 
-        let mut f: FS = FS::new(self.args.force, self.args.test);
+        let f: FS = FS::new(self.args.force, self.args.test);
 
         println!("Adding file {:?}", add_args.filename);
         println!("to package {:?}", add_args.package);
@@ -311,7 +310,7 @@ impl<'a> Runner<'a> {
             .unwrap();
         target.push(file_base);
 
-        let exists = target.exists();
+        let exists = f.exists(&target);
         if exists {
             if !self.args.force {
                 println!("{:?} exists and force not set", &target);
@@ -321,9 +320,9 @@ impl<'a> Runner<'a> {
                 println!("Force set and repo file exists - deleting existing.");
                 let res;
                 if target.is_dir() {
-                    res = fs::remove_dir_all(&target);
+                    res = f.remove_dir_all(&target);
                 } else {
-                    res = fs::remove_file(&target);
+                    res = f.remove_file(&target);
                 }
                 match res {
                     Ok(_) => {
@@ -337,9 +336,16 @@ impl<'a> Runner<'a> {
             }
         }
 
-        fs::create_dir_all(&target.parent().unwrap());
+        let res = f.create_dir_all(&target.parent().unwrap());
+        match res {
+            Ok(_) => (),
+            Err(msg) => {
+                println!("Failed creating directory: {:?}", msg);
+                return false;
+            }
+        }
 
-        match fs::rename(&add_args.filename, &target) {
+        match f.rename(&add_args.filename, &target) {
             Ok(_) => (),
             Err(msg) => {
                 println!("Moving file to repo failed: {}", msg);
@@ -356,40 +362,4 @@ impl<'a> Runner<'a> {
             return false;
         }
     }
-}
-
-fn get_files_to_symlink(base: &PathBuf) -> Vec<PathBuf> {
-    let mut vec = Vec::new();
-
-    for entry in base.read_dir().expect("read_dir call failed") {
-        if let Ok(entry) = entry {
-            if entry.file_type().unwrap().is_dir() {
-                for file in get_files_to_symlink(&entry.path()) {
-                    vec.push(file);
-                }
-            } else {
-                vec.push(entry.path());
-            }
-        }
-    }
-
-    vec
-}
-
-
-fn get_dirs_to_create(base: &PathBuf) -> Vec<PathBuf> {
-    let mut vec = Vec::new();
-
-    for entry in base.read_dir().expect("read_dir call failed") {
-        if let Ok(entry) = entry {
-            if entry.file_type().unwrap().is_dir() {
-                for dir in get_dirs_to_create(&entry.path()) {
-                    vec.push(dir);
-                }
-                vec.push(entry.path());
-            }
-        }
-    }
-
-    vec
 }

@@ -1,5 +1,6 @@
 use std::path::{Path, PathBuf};
 use std::fs;
+use std::io;
 
 pub struct FS {
     force: bool,
@@ -66,21 +67,63 @@ impl FS {
         }
     }
 
-    pub fn link_exists<P: AsRef<Path>, Q: AsRef<Path>>(&self, link: P, target: Q) -> bool {
-        use std::fs;
-
-        let link = fs::read_link(link);
-        return match link {
-            Ok(link) => link == target.as_ref(),
-            Err(_) => false,
-        };
-    }
-
-    pub fn file_exists<P: AsRef<Path>>(&self, file: P) -> bool {
-        return file.as_ref().is_file();
-    }
-
     pub fn dir_exists<P: AsRef<Path>>(&self, dir: P) -> bool {
         return dir.as_ref().is_dir();
+    }
+
+    pub fn create_dir_all<P: AsRef<Path>>(&self, dir: P) -> io::Result<()> {
+        return fs::create_dir_all(dir);
+    }
+
+    pub fn remove_dir_all<P: AsRef<Path>>(&self, dir: P) -> io::Result<()> {
+        return fs::remove_dir_all(dir);
+    }
+
+    pub fn remove_file<P: AsRef<Path>>(&self, dir: P) -> io::Result<()> {
+        return fs::remove_file(dir);
+    }
+
+    pub fn rename<P: AsRef<Path>, Q: AsRef<Path>>(&self, old: P, new: Q) -> io::Result<()> {
+        return fs::rename(old, new);
+    }
+
+    pub fn get_files_to_symlink(&self, base: &PathBuf) -> Vec<PathBuf> {
+        let mut vec = Vec::new();
+
+        for entry in base.read_dir().expect("read_dir call failed") {
+            if let Ok(entry) = entry {
+                if entry.file_type().unwrap().is_dir() {
+                    for file in self.get_files_to_symlink(&entry.path()) {
+                        vec.push(file);
+                    }
+                } else {
+                    vec.push(entry.path());
+                }
+            }
+        }
+
+        vec
+    }
+
+
+    pub fn get_dirs_to_create(&self, base: &PathBuf) -> Vec<PathBuf> {
+        let mut vec = Vec::new();
+
+        for entry in base.read_dir().expect("read_dir call failed") {
+            if let Ok(entry) = entry {
+                if entry.file_type().unwrap().is_dir() {
+                    for dir in self.get_dirs_to_create(&entry.path()) {
+                        vec.push(dir);
+                    }
+                    vec.push(entry.path());
+                }
+            }
+        }
+
+        vec
+    }
+
+    pub fn exists(&self, path: &PathBuf) -> bool {
+        return path.exists();
     }
 }

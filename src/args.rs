@@ -223,7 +223,8 @@ mod tests {
             "vim",
             "zsh",
         ];
-        let args = args::get_args(app.get_matches_from(app_args)).unwrap();
+        let args = args::get_args(app.get_matches_from(app_args));
+        assert!(args.is_ok(), "should be fine, since the directory exists");
     }
 
     #[test]
@@ -308,7 +309,6 @@ mod tests {
     fn check_add_file_no_package() {
         let app = app::new();
         let target_dir = fs::canonicalize("test/home").unwrap();
-        let file = fs::canonicalize("test/repo/vim/files/.vimrc").unwrap();
         let app_args = vec![
             "dotfiles-manager",
             "--target",
@@ -328,7 +328,6 @@ mod tests {
     fn check_add_file_no_host() {
         let app = app::new();
         let target_dir = fs::canonicalize("test/home").unwrap();
-        let file = fs::canonicalize("test/repo/vim/files/.vimrc").unwrap();
         let app_args = vec![
             "dotfiles-manager",
             "--target",

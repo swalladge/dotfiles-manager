@@ -1,5 +1,4 @@
 
-#[macro_use]
 extern crate clap;
 
 extern crate sys_info;
