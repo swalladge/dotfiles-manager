@@ -19,9 +19,10 @@ impl<'a> Runner<'a> {
 
         let args = self.args;
 
-        let f: FS = FS::new(self.args.force, self.args.test);
+        let f: FS = FS::new(self.args.force);
 
         for package1 in &args.packages {
+            println!(":: Installing package {:?}", package1);
 
             let mut package_base = args.dir.clone();
             package_base.push(package1);
@@ -39,22 +40,29 @@ impl<'a> Runner<'a> {
             host_pre_up_hooks_dir.push("hooks");
             host_pre_up_hooks_dir.push("pre-up");
 
-            hooks::run_hooks(&pre_up_hooks_dir, &host_pre_up_hooks_dir);
+            println!(":: Executing pre-up hooks.");
+            let ok = hooks::run_hooks(&pre_up_hooks_dir, &host_pre_up_hooks_dir, args.test);
+            if !ok {
+                return false;
+            }
 
 
             let mut global_files_base = package_base.clone();
             global_files_base.push("files");
 
+            println!(":: Creating parent dirs where required.");
             // create all the directories required
             let dirs = f.get_dirs_to_create(&global_files_base);
             for dir in dirs {
                 let base = dir.strip_prefix(&global_files_base).unwrap();
                 let new_dir = args.target_dir.join(base);
 
-                let result = f.create_dir_all(&new_dir);
-                match result {
-                    Ok(_) => println!("created ok!"),
-                    Err(msg) => println!("fail: {}", msg),
+                if !args.test {
+                    let result = f.create_dir_all(&new_dir);
+                    match result {
+                        Ok(_) => (),
+                        Err(msg) => println!(":: Creating {:?} failed: {}", new_dir, msg),
+                    }
                 }
 
             }
@@ -74,12 +82,16 @@ impl<'a> Runner<'a> {
                     let base = dir.strip_prefix(&host_files_base).unwrap();
                     let new_dir = args.target_dir.join(base);
 
-                    let result = f.create_dir_all(&new_dir);
-                    match result {
-                        Ok(_) => println!("created ok!"),
-                        Err(msg) => println!("fail: {}", msg),
+                    if !args.test {
+                        let result = f.create_dir_all(&new_dir);
+                        match result {
+                            Ok(_) => (),
+                            Err(msg) => {
+                                println!(":: Creating {:?} failed!\n{}", new_dir, msg);
+                                return false;
+                            }
+                        }
                     }
-
                 }
 
                 // symlink the files
@@ -108,18 +120,20 @@ impl<'a> Runner<'a> {
                 }
             }
 
+            println!(":: Creating links.");
             for (dest, file) in dests {
                 // dest is the new file to be created
                 // it should be a symbolic link pointing to file
-                let ok = f.create_link(&dest, &file);
+                let ok = f.create_link(&dest, &file, args.test);
                 if !ok {
                     return false;
                 }
             }
 
 
-
             // Now for the post-up hooks!
+
+            println!(":: Executing post-up hooks.");
 
             let mut post_up_hooks_dir = global_hooks_base.clone();
             post_up_hooks_dir.push("post-up");
@@ -129,7 +143,10 @@ impl<'a> Runner<'a> {
             host_post_up_hooks_dir.push("hooks");
             host_post_up_hooks_dir.push("post-up");
 
-            hooks::run_hooks(&post_up_hooks_dir, &host_post_up_hooks_dir);
+            let ok = hooks::run_hooks(&post_up_hooks_dir, &host_post_up_hooks_dir, args.test);
+            if !ok {
+                return false;
+            }
 
         }
 
@@ -140,7 +157,7 @@ impl<'a> Runner<'a> {
 
         let args = self.args;
 
-        let f: FS = FS::new(self.args.force, self.args.test);
+        let f: FS = FS::new(self.args.force);
 
         for package1 in &args.packages {
 
@@ -159,7 +176,10 @@ impl<'a> Runner<'a> {
             host_pre_down_hooks_dir.push(format!("hosts/{}/hooks/pre-down/", &args.hostname));
             println!("{:?}", host_pre_down_hooks_dir);
 
-            hooks::run_hooks(&pre_down_hooks_dir, &host_pre_down_hooks_dir);
+            let ok = hooks::run_hooks(&pre_down_hooks_dir, &host_pre_down_hooks_dir, args.test);
+            if !ok {
+                return false;
+            }
 
 
             let mut global_files_base = package_base.clone();
@@ -270,7 +290,11 @@ impl<'a> Runner<'a> {
             host_post_down_hooks_dir.push("hooks");
             host_post_down_hooks_dir.push("post-down");
 
-            hooks::run_hooks(&post_down_hooks_dir, &host_post_down_hooks_dir);
+            let ok = hooks::run_hooks(&post_down_hooks_dir, &host_post_down_hooks_dir, args.test);
+            if !ok {
+                return false;
+            }
+
 
         }
 
@@ -285,7 +309,7 @@ impl<'a> Runner<'a> {
             _ => panic!("should never happen"),
         };
 
-        let f: FS = FS::new(self.args.force, self.args.test);
+        let f: FS = FS::new(self.args.force);
 
         println!("Adding file {:?}", add_args.filename);
         println!("to package {:?}", add_args.package);
@@ -355,7 +379,7 @@ impl<'a> Runner<'a> {
             }
         }
 
-        let success = f.create_link(&add_args.filename, &target);
+        let success = f.create_link(&add_args.filename, &target, self.args.test);
         if success {
             println!("Successfully added file!");
             return true;

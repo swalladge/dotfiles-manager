@@ -28,6 +28,15 @@ fn run() -> i32 {
         }
     };
 
+    if args.test {
+        println!(":: Test mode active. Hooks will not execute and files will not be modified.");
+    }
+
+    if args.force {
+        println!(":: Force mode active. Files will be overwritten/removed without question.");
+    }
+
+
     let runner = Runner::new(&args);
 
     let success = match args.command {
@@ -35,14 +44,16 @@ fn run() -> i32 {
         Command::Uninstall => runner.uninstall(),
         Command::Add => runner.add(),
         Command::Empty => {
-            println!("No subcommand given!");
+            println!("ERR: No subcommand given!");
             false
         }
     };
 
     if success {
+        println!(":: Complete with success!");
         return 0;
     } else {
+        println!(":: Exited on error.");
         return 1;
     }
 

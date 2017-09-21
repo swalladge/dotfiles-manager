@@ -1,22 +1,17 @@
 use std::path::{Path, PathBuf};
 use std::fs;
 use std::io;
-use std::io::ErrorKind;
 
 pub struct FS {
     force: bool,
-    simulate: bool,
 }
 
 impl FS {
-    pub fn new(force: bool, simulate: bool) -> FS {
-        FS {
-            force: force,
-            simulate: simulate,
-        }
+    pub fn new(force: bool) -> FS {
+        FS { force: force }
     }
 
-    pub fn create_link(&self, link: &PathBuf, target: &PathBuf) -> bool {
+    pub fn create_link(&self, link: &PathBuf, target: &PathBuf, simulate: bool) -> bool {
         // `link` is path to symlink to create
         // `target` is path to file in repo the link should point to
         // TODO: work on windows too
@@ -25,20 +20,10 @@ impl FS {
         if self.force {
             match fs::canonicalize(&link) {
                 Ok(_) => {
-                    println!("Deleting existing file: {}", link.display());
+                    if link.is_file() {
+                        println!(":: Removing existing file: {:?}", link);
 
-                    // don't actually remove a file in simulate mode
-                    if self.simulate {
-                        if self.is_writable(link) {
-                            return true;
-                        } else {
-                            println!("Failed to delete: file is readonly");
-                            return false;
-                        }
-                    } else {
-
-                        if link.is_file() {
-
+                        if !simulate {
                             let result = fs::remove_file(&link);
                             match result {
                                 Err(msg) => {
@@ -47,8 +32,11 @@ impl FS {
                                 }
                                 _ => (),
                             }
-                        } else if link.is_dir() {
+                        }
+                    } else if link.is_dir() {
+                        println!(":: Removing existing dir: {:?}", link);
 
+                        if !simulate {
                             let result = fs::remove_dir_all(&link);
                             match result {
                                 Err(msg) => {
@@ -66,7 +54,7 @@ impl FS {
             match fs::canonicalize(&link) {
                 Ok(file) => {
                     if &file == target {
-                        println!("Link already exists: {:?}", file);
+                        println!(":: Skipping existing link: {:?}", file);
                         return true;
                     }
                 }
@@ -74,24 +62,20 @@ impl FS {
             }
         }
 
-        if self.simulate {
-            if self.is_writable(link.parent().unwrap()) {
-                return true;
-            } else {
-                println!("No permissions to write in {:?}", link.parent().unwrap());
-                return false;
-            }
-        } else {
-
+        println!(":: Creating link {:?}\n           --> {:?}", link, target);
+        if !simulate {
             let result = symlink(target, link);
             match result {
                 Ok(_) => return true,
                 Err(msg) => {
-                    println!("failed to create link {:?} | {}", link, msg);
+                    println!(":: Failed to create link!\n{}", msg);
                     return false;
                 }
             }
+        } else {
+            return true;
         }
+
     }
 
     pub fn dir_exists<P: AsRef<Path>>(&self, dir: P) -> bool {
@@ -99,70 +83,18 @@ impl FS {
     }
 
     pub fn create_dir_all(&self, dir: &PathBuf) -> io::Result<()> {
-        if self.simulate {
-            let mut parent = dir.parent().unwrap();
-            while !self.dir_exists(parent) {
-                match parent.parent() {
-                    None => {
-                        break;
-                    }
-                    Some(path) => {
-                        parent = path;
-                    }
-                }
-            }
-
-            if self.is_writable(parent) {
-                return Ok(());
-            } else {
-                return Err(io::Error::new(
-                    ErrorKind::PermissionDenied,
-                    "file not writeable",
-                ));
-            }
-        }
         return fs::create_dir_all(dir);
     }
 
     pub fn remove_dir_all<P: AsRef<Path>>(&self, dir: P) -> io::Result<()> {
-        if self.simulate {
-            if self.is_writable(dir) {
-                return Ok(());
-            } else {
-                return Err(io::Error::new(
-                    ErrorKind::PermissionDenied,
-                    "file not writeable",
-                ));
-            }
-        }
         return fs::remove_dir_all(dir);
     }
 
     pub fn remove_file<P: AsRef<Path>>(&self, dir: P) -> io::Result<()> {
-        if self.simulate {
-            if self.is_writable(dir) {
-                return Ok(());
-            } else {
-                return Err(io::Error::new(
-                    ErrorKind::PermissionDenied,
-                    "file not writeable",
-                ));
-            }
-        }
         return fs::remove_file(dir);
     }
 
     pub fn rename(&self, old: &PathBuf, new: &PathBuf) -> io::Result<()> {
-        if self.simulate {
-            if self.is_writable(old) && self.is_writable(new.parent().unwrap()) {
-                return Ok(());
-            } else {
-                return Err(io::Error::new(
-                    ErrorKind::PermissionDenied,
-                    "file(s) not writeable",
-                ));
-            }
-        }
         return fs::rename(old, new);
     }
 
@@ -206,12 +138,5 @@ impl FS {
 
     pub fn exists(&self, path: &PathBuf) -> bool {
         return path.exists();
-    }
-
-    pub fn is_writable<P: AsRef<Path>>(&self, path: P) -> bool {
-        match fs::metadata(path) {
-            Ok(metadata) => !metadata.permissions().readonly(),
-            Err(_) => false,
-        }
     }
 }

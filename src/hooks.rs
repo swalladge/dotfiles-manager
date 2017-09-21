@@ -3,7 +3,7 @@ use std::process::Command;
 use std::collections::HashMap;
 use std::ffi::OsString;
 
-pub fn run_hooks(dir: &PathBuf, host_dir: &PathBuf) {
+pub fn run_hooks(dir: &PathBuf, host_dir: &PathBuf, simulate: bool) -> bool {
 
     let mut hooks_files = HashMap::new();
 
@@ -58,16 +58,25 @@ pub fn run_hooks(dir: &PathBuf, host_dir: &PathBuf) {
     for file_name in keys {
         let path = hooks_files.get(file_name).unwrap();
         let s = path.as_os_str();
-        println!("Running hook {:?}", file_name);
 
-        let result = Command::new(s).spawn();
-        match result {
-            Ok(_) => (),
-            Err(msg) => {
-                println!("Hook failed: {}", msg);
+
+        if simulate {
+            println!(":: Execute hook {:?}", path);
+        } else {
+
+            println!(":: Execute hook {:?}", file_name);
+            let result = Command::new(s).spawn();
+            match result {
+                Ok(_) => (),
+                Err(msg) => {
+                    println!("::   --> failed: {}", msg);
+                    return false;
+                }
             }
         }
     }
+
+    return true;
 
 
 
