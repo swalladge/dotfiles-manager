@@ -160,6 +160,7 @@ impl<'a> Runner<'a> {
         let f: FS = FS::new(self.args.force);
 
         for package1 in &args.packages {
+            println!(":: Removing package {:?}", package1);
 
             let mut package_base = args.dir.clone();
             package_base.push(package1);
@@ -170,6 +171,7 @@ impl<'a> Runner<'a> {
 
             // run the pre-down hooks
 
+            println!(":: Executing pre-down hooks.");
             let mut pre_down_hooks_dir = global_hooks_base.clone();
             pre_down_hooks_dir.push("pre-down");
             let mut host_pre_down_hooks_dir = package_base.clone();
@@ -233,8 +235,6 @@ impl<'a> Runner<'a> {
             }
 
             for dest in dests {
-                // dest is the new file to be created
-                // it should be a symbolic link pointing to file
 
                 // if the file doesn't exist, then don't do anything
                 if !f.exists(&dest) {
@@ -248,32 +248,33 @@ impl<'a> Runner<'a> {
                         if !path.starts_with(&package_base) {
                             if !args.force {
                                 println!(
-                                    "{:?} exists and not pointing to the package base ({})",
-                                    &dest,
-                                    &package1
+                                    ":: Existing file does not point to package base, not removing.\n   --> {:?}",
+                                    &dest
                                 );
                                 continue;
                             }
                         }
                     }
                     Err(msg) => {
-                        println!("Error checking existing file {:?} : {}", &dest, msg);
+                        println!(":: Error checking existing file {:?} : {}", &dest, msg);
                     }
                 }
 
                 // delete!
-                let res;
-                if dest.is_dir() {
-                    res = f.remove_dir_all(&dest);
-                } else {
-                    res = f.remove_file(&dest);
-                }
-                match res {
-                    Ok(_) => {
-                        println!("Deleted {:?}", &dest);
+                println!(":: Removing {:?}", &dest);
+                if !args.test {
+                    let res;
+                    if dest.is_dir() {
+                        res = f.remove_dir_all(&dest);
+                    } else {
+                        res = f.remove_file(&dest);
                     }
-                    Err(msg) => {
-                        println!("Failed to remove {:?} : {}", &dest, msg);
+                    match res {
+                        Ok(_) => (),
+                        Err(msg) => {
+                            println!("Failed to remove {:?} : {}", &dest, msg);
+                            return false;
+                        }
                     }
                 }
 
@@ -282,6 +283,7 @@ impl<'a> Runner<'a> {
 
             // Now for the post-down hooks!
 
+            println!(":: Executing post-down hooks.");
             let mut post_down_hooks_dir = global_hooks_base.clone();
             post_down_hooks_dir.push("post-down");
             let mut host_post_down_hooks_dir = package_base.clone();
