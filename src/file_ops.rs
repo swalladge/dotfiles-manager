@@ -62,7 +62,7 @@ impl FS {
             }
         }
 
-        println!(":: Creating link {:?}\n           --> {:?}", link, target);
+        println!(":: Creating link {:?}\n             --> {:?}", link, target);
         if !simulate {
             let result = symlink(target, link);
             match result {

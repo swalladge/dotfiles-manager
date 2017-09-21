@@ -313,10 +313,10 @@ impl<'a> Runner<'a> {
 
         let f: FS = FS::new(self.args.force);
 
-        println!("Adding file {:?}", add_args.filename);
-        println!("to package {:?}", add_args.package);
+        println!(":: Adding {:?}", add_args.filename);
+        println!(":: --> package {:?}", add_args.package);
         println!(
-            "host-specific mode is {}",
+            ":: Host-specific mode is {}.",
             if add_args.host_specific { "on" } else { "off" }
         );
 
@@ -332,61 +332,68 @@ impl<'a> Runner<'a> {
         let file_base = match add_args.filename.strip_prefix(&self.args.target_dir) {
             Ok(path) => path,
             Err(_) => {
-                println!("File to add must be in the target directory.");
+                println!("ERR: File to add must be in the target directory.");
                 return false;
             }
         };
         target.push(file_base);
 
+        println!(":: File will be moved to {:?}.", &target);
+
         let exists = f.exists(&target);
         if exists {
             if !self.args.force {
-                println!("{:?} exists and force not set", &target);
-                println!("Not overwriting.");
+                println!(":: Target file exists in repo, not overwriting.");
                 return false;
             } else {
-                println!("Force set and repo file exists - deleting existing.");
-                let res;
-                if target.is_dir() {
-                    res = f.remove_dir_all(&target);
-                } else {
-                    res = f.remove_file(&target);
-                }
-                match res {
-                    Ok(_) => {
-                        println!("Deleted {:?}", &target);
+                println!(":: Overwriting existing file in repo.");
+                if !self.args.test {
+                    let res;
+                    if target.is_dir() {
+                        res = f.remove_dir_all(&target);
+                    } else {
+                        res = f.remove_file(&target);
                     }
-                    Err(msg) => {
-                        println!("Failed to remove {:?} : {}", &target, msg);
-                        return false;
+                    match res {
+                        Ok(_) => {
+                            println!("Deleted {:?}", &target);
+                        }
+                        Err(msg) => {
+                            println!("Failed to remove {:?} : {}", &target, msg);
+                            return false;
+                        }
                     }
                 }
             }
         }
 
-        let res = f.create_dir_all(&target.parent().unwrap().to_owned());
-        match res {
-            Ok(_) => (),
-            Err(msg) => {
-                println!("Failed creating directory: {:?}", msg);
-                return false;
+        if !self.args.test {
+            let res = f.create_dir_all(&target.parent().unwrap().to_owned());
+            match res {
+                Ok(_) => (),
+                Err(msg) => {
+                    println!(
+                        "ERR: Failed creating target directory {:?}\n{}",
+                        &target.parent().unwrap().to_owned(),
+                        msg
+                    );
+                    return false;
+                }
             }
-        }
 
-        match f.rename(&add_args.filename, &target) {
-            Ok(_) => (),
-            Err(msg) => {
-                println!("Moving file to repo failed: {}", msg);
-                return false;
+            match f.rename(&add_args.filename, &target) {
+                Ok(_) => (),
+                Err(msg) => {
+                    println!("Moving file to repo failed: {}", msg);
+                    return false;
+                }
             }
         }
 
         let success = f.create_link(&add_args.filename, &target, self.args.test);
         if success {
-            println!("Successfully added file!");
             return true;
         } else {
-            println!("Failed to create link.");
             return false;
         }
     }
