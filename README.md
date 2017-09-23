@@ -91,10 +91,9 @@ For convenience, a `Makefile` is included with some shortcut commands:
 - [x] host specific config
 - [x] run scripts as hooks before and after installing/removing
 - [x] force install/remove links
-- [ ] run in test mode (no filesystem changes)
+- [x] run in test mode (no filesystem changes)
 - [x] integration tests
 - [ ] stable cli api
-- [ ] error handling and recovery for installing/script-running
 
 
 # Usage

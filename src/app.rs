@@ -11,7 +11,7 @@ pub fn new() -> App<'static, 'static> {
             .short("d")
             .long("dir")
             .value_name("DIR")
-            .help("Set dir to DIR (default is current dir)")
+            .help("Set source/repo directory to DIR (default is current dir)")
             .takes_value(true),
     )
     .arg(
@@ -28,7 +28,7 @@ pub fn new() -> App<'static, 'static> {
             .short("t")
             .long("target")
             .value_name("DIR")
-            .help("Set target to DIR (default is $HOME)")
+            .help("Set target base directory to DIR (default is $HOME)")
             .takes_value(true),
     )
     .arg(Arg::with_name("test").long("no").short("n").help(
