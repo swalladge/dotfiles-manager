@@ -166,7 +166,9 @@ impl<'a> Runner<'a> {
             }
 
             if was_failure {
-                println!(":: One or more files failed to link, exiting without running post-up hooks.");
+                println!(
+                    ":: One or more files failed to link, exiting without running post-up hooks."
+                );
                 return false;
             }
 
@@ -363,6 +365,8 @@ impl<'a> Runner<'a> {
             _ => panic!("should never happen"),
         };
 
+        let args = self.args;
+
         let f: FS = FS::new(self.args.force);
 
         println!(":: Adding {:?}", add_args.filename);
@@ -391,6 +395,16 @@ impl<'a> Runner<'a> {
         target.push(file_base);
 
         println!(":: File will be moved to {:?}.", &target);
+        println!(":: And link created in original location.");
+
+        // only prompt if not in test mode and haven't added the 'no confirm' flag
+        if !args.no_confirm && !args.test {
+            if !ask("Continue?") {
+                println!(":: Aborting add operation.");
+                return true;
+            }
+        }
+
 
         let exists = f.exists(&target);
         if exists {
