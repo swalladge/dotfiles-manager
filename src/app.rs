@@ -34,6 +34,9 @@ pub fn new() -> App<'static, 'static> {
     .arg(Arg::with_name("test").long("no").short("n").help(
         "Do not actually make any filesystem changes or run hooks",
     ))
+    .arg(Arg::with_name("no_confirm").long("yes").short("y").help(
+        "Assume yes answer to all prompts - non-interactive mode, useful for scripts.",
+    ))
     .arg(Arg::with_name("verbose").long("verbose").short("v").help(
         "Be verbose",
     ))

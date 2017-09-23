@@ -28,6 +28,7 @@ pub struct Args {
     pub packages: Vec<String>,
     pub command: Command,
     pub add_args: Option<AddArgs>,
+    pub no_confirm: bool,
 }
 
 pub fn get_args(matches: clap::ArgMatches) -> Result<Args, &'static str> {
@@ -107,6 +108,7 @@ pub fn get_args(matches: clap::ArgMatches) -> Result<Args, &'static str> {
         target_dir: target_dir,
         force: matches.is_present("force"),
         verbose: matches.is_present("verbose"),
+        no_confirm: matches.is_present("no_confirm"),
         hostname: hostname,
         test: matches.is_present("test"),
 
@@ -185,6 +187,30 @@ mod tests {
         let args = args::get_args(app.get_matches_from(app_args)).unwrap();
         // make sure a hostname is found
         assert!(args.hostname.len() > 0);
+    }
+
+    #[test]
+    fn check_no_confirm_on() {
+        let app = app::new();
+        let app_args = vec!["dotfiles-manager", "-y", "-f", "install", "vim"];
+        let args = args::get_args(app.get_matches_from(app_args)).unwrap();
+        assert!(args.no_confirm);
+    }
+
+    #[test]
+    fn check_no_confirm_on_long() {
+        let app = app::new();
+        let app_args = vec!["dotfiles-manager", "--yes", "install", "vim"];
+        let args = args::get_args(app.get_matches_from(app_args)).unwrap();
+        assert!(args.no_confirm);
+    }
+
+    #[test]
+    fn check_no_confirm_off() {
+        let app = app::new();
+        let app_args = vec!["dotfiles-manager", "--yes", "install", "vim"];
+        let args = args::get_args(app.get_matches_from(app_args)).unwrap();
+        assert!(args.no_confirm);
     }
 
 
