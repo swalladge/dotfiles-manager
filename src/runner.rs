@@ -199,6 +199,18 @@ impl<'a> Runner<'a> {
             let mut package_base = args.dir.clone();
             package_base.push(package1);
 
+
+            println!(":: Will remove all links in {:?}", args.target_dir);
+            println!("     that point to files in {:?}", package_base);
+
+            // only prompt if not in test mode and haven't added the 'no confirm' flag
+            if !args.no_confirm && !args.test {
+                if !ask("Continue?") {
+                    println!(":: Aborting removal of {:?}", package1);
+                    continue;
+                }
+            }
+
             let mut global_hooks_base = package_base.clone();
             global_hooks_base.push("hooks");
 
