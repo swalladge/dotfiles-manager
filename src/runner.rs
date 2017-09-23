@@ -155,13 +155,19 @@ impl<'a> Runner<'a> {
             }
 
             println!(":: Creating links.");
+            let mut was_failure = false;
             for (dest, file) in dests {
                 // dest is the new file to be created
                 // it should be a symbolic link pointing to file
                 let ok = f.create_link(&dest, &file, args.test);
                 if !ok {
-                    return false;
+                    was_failure = true;
                 }
+            }
+
+            if was_failure {
+                println!(":: One or more files failed to link, exiting without running post-up hooks.");
+                return false;
             }
 
 

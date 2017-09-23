@@ -27,7 +27,7 @@ impl FS {
                             let result = fs::remove_file(&link);
                             match result {
                                 Err(msg) => {
-                                    println!("Failed to remove file: {}", msg);
+                                    println!(":: Failed to remove file: {}", msg);
                                     return false;
                                 }
                                 _ => (),
@@ -40,7 +40,7 @@ impl FS {
                             let result = fs::remove_dir_all(&link);
                             match result {
                                 Err(msg) => {
-                                    println!("Failed to remove directory: {}", msg);
+                                    println!(":: Failed to remove directory: {}", msg);
                                     return false;
                                 }
                                 _ => (),
@@ -54,7 +54,7 @@ impl FS {
             match fs::canonicalize(&link) {
                 Ok(file) => {
                     if &file == target {
-                        println!(":: Skipping existing link: {:?}", file);
+                        println!(":: Skipping existing link: {:?}", link);
                         return true;
                     }
                 }
@@ -68,7 +68,7 @@ impl FS {
             match result {
                 Ok(_) => return true,
                 Err(msg) => {
-                    println!(":: Failed to create link!\n{}", msg);
+                    println!(":: Failed to create link!\n   {}", msg);
                     return false;
                 }
             }

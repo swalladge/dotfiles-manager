@@ -61,15 +61,23 @@ pub fn run_hooks(dir: &PathBuf, host_dir: &PathBuf, simulate: bool) -> bool {
 
 
         if simulate {
-            println!(":: Execute hook {:?}", path);
+            println!(":: Executing hook {:?}", path);
         } else {
 
-            println!(":: Execute hook {:?}", file_name);
-            let result = Command::new(s).spawn();
+            println!(":: Executing hook {:?}", file_name);
+            let result = Command::new(s).status();
             match result {
-                Ok(_) => (),
+                Ok(status) => {
+                    if !status.success() {
+                        match status.code() {
+                            Some(code) => println!(":: Hook failed with status code: {}", code),
+                            None => println!(":: Hook failed: terminated by signal"),
+                        }
+                        return false;
+                    }
+                }
                 Err(msg) => {
-                    println!("::   --> failed: {}", msg);
+                    println!(":: Failed to execute hook: {}", msg);
                     return false;
                 }
             }
