@@ -12,7 +12,7 @@ run_test() {
      cp -r "${BASE_DIR}/test/repo" "${TEMP_LOCAL}"
      ls -a "${TEMP_LOCAL}"
 
-     exe -d "${TEMP_LOCAL}/repo" -t "${TEMP_LOCAL}/" -B desktop1 add "${TEMP_LOCAL}/.vimrc2" -p vim
+     exe -d "${TEMP_LOCAL}/repo" -t "${TEMP_LOCAL}/" -B desktop1 -y add "${TEMP_LOCAL}/.vimrc2" -p vim
 
      # make sure it exited ok
      local last="$?"

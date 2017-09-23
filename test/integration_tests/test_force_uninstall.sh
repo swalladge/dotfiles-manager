@@ -9,7 +9,7 @@ run_test() {
      echo "# hi" > "${TEMP_LOCAL}/.zshrc"
      mkdir -p "${TEMP_LOCAL}/.vim/filetype.vim" # warning, this is a dir for testing
 
-     exe -d "${BASE_DIR}/test/repo" -t "${TEMP_LOCAL}/" -B desktop1 --force remove vim zsh
+     exe -d "${BASE_DIR}/test/repo" -t "${TEMP_LOCAL}/" -B desktop1 --force -y remove vim zsh
 
      # make sure it exited ok
      local last="$?"

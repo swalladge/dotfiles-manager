@@ -3,9 +3,9 @@
 
 run_test() {
      echo "checking that uninstalling a previously installed package works"
-     exe_sans -d "${BASE_DIR}/test/repo" -t "${TEMP_LOCAL}/" -B desktop1 install vim
+     exe_sans -d "${BASE_DIR}/test/repo" -t "${TEMP_LOCAL}/" -B desktop1 -y install vim
 
-     exe -d "${BASE_DIR}/test/repo" -t "${TEMP_LOCAL}/" -B desktop1 remove vim
+     exe -d "${BASE_DIR}/test/repo" -t "${TEMP_LOCAL}/" -B desktop1 -y remove vim
 
      # make sure it exited ok
      local last="$?"

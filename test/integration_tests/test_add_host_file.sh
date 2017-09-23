@@ -11,7 +11,7 @@ run_test() {
      # copy the repo to the local directory so we don't mess up the original
      cp -r "${BASE_DIR}/test/repo" "${TEMP_LOCAL}"
 
-     exe -d "${TEMP_LOCAL}/repo" -t "${TEMP_LOCAL}/" -B desktop1 add "${TEMP_LOCAL}/.vimrc2" -p vim --host
+     exe -d "${TEMP_LOCAL}/repo" -t "${TEMP_LOCAL}/" -B desktop1 --yes add "${TEMP_LOCAL}/.vimrc2" -p vim --host
 
      # make sure it exited ok
      local last="$?"

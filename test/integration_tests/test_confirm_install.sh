@@ -2,8 +2,8 @@
 
 
 run_test() {
-     echo "checking that a general install of a package works as expected"
-     exe -d "${BASE_DIR}/test/repo" -t "${TEMP_LOCAL}/" -B desktop1 -y install vim
+     echo "checking that an install with prompting works with 'yes' piped to it"
+     yes | exe -d "${BASE_DIR}/test/repo" -t "${TEMP_LOCAL}/" -B desktop1 install vim zsh
 
      # make sure it exited ok
      local last="$?"

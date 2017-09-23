@@ -3,7 +3,7 @@
 
 run_test() {
      echo "checking that a general install of a different package works as expected"
-     exe -d "${BASE_DIR}/test/repo" -t "${TEMP_LOCAL}/" -B desktop1 install zsh
+     exe -d "${BASE_DIR}/test/repo" -t "${TEMP_LOCAL}/" -B desktop1 -y install zsh
 
      # make sure it exited ok
      local last="$?"

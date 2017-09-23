@@ -10,7 +10,7 @@ run_test() {
      local original_dir=$(readlink -f "${TEMP_LOCAL}/.vim/filetype.vim")
 
      # run without force on
-     exe -d "${BASE_DIR}/test/repo" -t "${TEMP_LOCAL}/" -B desktop1 install vim
+     exe -d "${BASE_DIR}/test/repo" -t "${TEMP_LOCAL}/" -B desktop1 --yes install vim
 
      # should not have existed ok
      local last="$?"

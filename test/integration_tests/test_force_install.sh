@@ -9,7 +9,7 @@ run_test() {
      mkdir -p "${TEMP_LOCAL}/.vim/filetype.vim"
 
      # run with force on
-     exe -d "${BASE_DIR}/test/repo" -t "${TEMP_LOCAL}/" --force -B desktop1 install vim
+     exe -d "${BASE_DIR}/test/repo" -t "${TEMP_LOCAL}/" --force -B desktop1 -y install vim
 
      # make sure it exited ok
      local last="$?"

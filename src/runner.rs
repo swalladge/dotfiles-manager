@@ -1,3 +1,4 @@
+use std::io::{self, Write};
 use std::path::PathBuf;
 use std::collections::{HashMap, HashSet};
 
@@ -5,6 +6,28 @@ use args::Args;
 use hooks;
 use file_ops::FS;
 
+
+/// Prompts the user to answer yes or no to a prompt
+/// Returns true on positive answer, false otherwise
+///
+/// A blank line, 'y', or 'yes', after that line has been trimmed and converted to lowercase, is
+/// considered a positive answer. Anything else is considered negative.
+fn ask(prompt: &str) -> bool {
+    print!(">>> {} [Y/n] ", prompt);
+    io::stdout().flush().unwrap();
+
+    let mut input_text = String::new();
+    io::stdin().read_line(&mut input_text).expect(
+        "failed to read from stdin",
+    );
+    let answer = input_text.trim().to_lowercase();
+
+    if answer == "yes" || answer == "y" || answer == "" {
+        return true;
+    }
+
+    return false;
+}
 
 pub struct Runner<'a> {
     args: &'a Args,
@@ -26,6 +49,17 @@ impl<'a> Runner<'a> {
 
             let mut package_base = args.dir.clone();
             package_base.push(package1);
+
+            println!(":: Will install from {:?}", package_base);
+            println!("                  to {:?}", args.target_dir);
+
+            // only prompt if not in test mode and haven't added the 'no confirm' flag
+            if !args.no_confirm && !args.test {
+                if !ask("Continue?") {
+                    println!(":: Aborting installation of {:?}", package1);
+                    continue;
+                }
+            }
 
             let mut global_hooks_base = package_base.clone();
             global_hooks_base.push("hooks");

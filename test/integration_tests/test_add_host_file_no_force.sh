@@ -13,7 +13,7 @@ run_test() {
      cp -r "${BASE_DIR}/test/repo" "${TEMP_LOCAL}"
      echo "hi" > "${TEMP_LOCAL}/repo/vim/hosts/desktop1/files/.vimrc2"
 
-     exe -d "${TEMP_LOCAL}/repo" -t "${TEMP_LOCAL}/" -B desktop1 add "${TEMP_LOCAL}/.vimrc2" -p vim --host
+     exe -d "${TEMP_LOCAL}/repo" -t "${TEMP_LOCAL}/" -B desktop1 --yes add "${TEMP_LOCAL}/.vimrc2" -p vim --host
 
      # make sure it exited with fail status (should not have overwritten)
      local last="$?"
