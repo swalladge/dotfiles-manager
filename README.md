@@ -19,6 +19,32 @@ Direction for the project taken from initial research, documented in the
 
 GitHub issues are currently used for tracking progress and documenting requirements.
 
+# Installing
+
+## Binary release
+
+Simply download the archive containing the binary for your platform from the
+[releases](https://github.com/swalladge/dotfiles-manager/releases) page.
+Extract the archive, move the binary to somewhere on your path, and voila!
+
+## From source/git
+
+```shell
+$ git clone https://github.com/swalladge/dotfiles-manager
+$ cd dotfiles-manager
+$ make release
+```
+
+This will download the sources and produce a binary at `./target/release/dotfiles-manager`.
+
+## Via cargo
+
+If you have `cargo` and the rust toolchain installed, you can install it through that.
+
+```
+$ cargo install dotfiles-manager
+```
+
 
 # Testing
 

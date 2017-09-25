@@ -2,7 +2,18 @@
 name = "dotfiles-manager"
 version = "0.0.1"
 authors = ["Samuel Walladge <samuel@swalladge.id.au>"]
+description = "experimental dotfiles manager"
+homepage = "https://github.com/swalladge/dotfiles-manager"
+repository = "https://github.com/swalladge/dotfiles-manager"
+readme = "README.md"
+keywords = ["dotfiles"]
+license = "GPL-3.0"
+categories = ["command-line-utilities", "config"]
 
 [dependencies]
 clap = "2.26.0"
 sys-info = "*"
+
+[badges]
+travis-ci = { repository = "swalladge/dotfiles-manager", branch = "master" }
+coveralls = { repository = "swalladge/dotfiles-manager", branch = "master" }
