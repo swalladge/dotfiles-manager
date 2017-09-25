@@ -1,0 +1,285 @@
+<html>
+
+<head>
+  <link rel="stylesheet" href="css/reveal.css">
+  <link rel="stylesheet" href="css/theme/solarized.css">
+  <script src="lib/js/head.min.js"></script>
+</head>
+
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <section data-markdown>
+        <textarea data-template>
+            ## Dotfiles Manager
+
+            A dotfiles manager
+          </textarea>
+      </section>
+
+      <section data-markdown>
+        <textarea data-template>
+            ## Dotfiles manager?
+
+            Dotfiles are user configuration files.
+
+            Example:
+
+            - vim --> `.vimrc`
+            - i3-wm --> `.config/i3/config`
+
+          </textarea>
+      </section>
+
+      <section data-markdown>
+        <textarea data-template>
+            ![github image](img/github-dotfiles.png) <!-- .element: style="float:right;width:25%;" -->
+
+            ## Dotfiles manager?
+
+            Some users have a lot of dotfiles!
+
+            Git/GitHub to save & track changes
+
+            Dotfiles manager to link between repo and file locations
+
+          </textarea>
+      </section>
+
+      <section data-markdown>
+        <textarea data-template>
+            ## Design
+
+            - command line application
+            - simple operation
+            - work with structured repository of files
+
+          </textarea>
+      </section>
+
+      <section>
+
+        <section data-markdown>
+          <textarea data-template>
+              ## Features
+
+              ### Package based design
+
+              - works with "packages" - one or more in repository
+              - install or remove packages
+              - add new file to package to track
+
+            </textarea>
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+              ### Host specific config
+
+              Each computer is different. Different scripts and files per host based on repo file structure.
+
+            </textarea>
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+              ### Safety and security
+
+              - run in test mode (no fs changes)
+              - ask for confirmation
+              - only overwrite if force mode chosen
+
+            </textarea>
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+              ### Hooks
+
+              Custom scripts can be run before and after installation or removal.
+            </textarea>
+        </section>
+
+      </section>
+
+      <section>
+
+        <section data-markdown>
+          <textarea data-template>
+              ## Technology
+
+            </textarea>
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+              ## Programming language
+
+              ### Rust
+
+              [https://www.rust-lang.org](https://www.rust-lang.org)
+
+              - systems programming language
+              - secure
+              - fast
+              - well suited to minimal command line applications
+
+            </textarea>
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+              ## more? TODO
+            </textarea>
+        </section>
+
+      </section>
+
+      <section>
+
+        <section data-markdown>
+          <textarea data-template>
+              ## Testing
+
+            </textarea>
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+              ### Unit tests
+
+              Rust and cargo (build tool) have excellent test support.
+
+              ```rust
+              #[test]
+              fn check_force_on() {
+                  let app = app::new();
+                  let app_args = vec!["manager", "-f", "install", "vim"];
+                  let args = args::get_args(
+                    app.get_matches_from(app_args)
+                  ).unwrap();
+                  assert!(args.force);
+              }
+              ```
+
+            </textarea>
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+              ### Integration tests
+
+              More difficult!
+
+              - Developed a custom bash script runner
+              - Each test is a bash script in `tests/integration_tests/`
+
+            </textarea>
+        </section>
+
+
+        <section data-markdown>
+          <textarea data-template>
+              ### Continuous Integration
+
+              ![travisci](https://avatars0.githubusercontent.com/u/639823?v=4&s=200) <!-- .element: style="float:left;width:20%;" -->
+
+              Travis CI supports rust projects and integrates with GitHub.
+
+              Able to run all tests on every push to GitHub.
+
+            </textarea>
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+              ### Code coverage
+
+              Coverage generated with [kcov](https://github.com/SimonKagstrom/kcov).
+              Continuous integration and tracking with [Coveralls](https://coveralls.io/github/swalladge/dotfiles-manager)
+
+              <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="616px" height="221px" version="1.1" ><defs/><g transform="translate(0.5,0.5)"><rect x="0" y="0" width="120" height="60" rx="9" ry="9" fill="#ffffff" stroke="#000000" pointer-events="none"/><g transform="translate(13.5,17.5)"><switch><foreignObject style="overflow:visible;" pointer-events="all" width="92" height="24" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; font-size: 22px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; vertical-align: top; width: 92px; white-space: nowrap; word-wrap: normal; text-align: center;"><div xmlns="http://www.w3.org/1999/xhtml" style="display:inline-block;text-align:inherit;text-decoration:inherit;">Unit tests</div></div></foreignObject><text x="46" y="23" fill="#000000" text-anchor="middle" font-size="22px" font-family="Helvetica">Unit tests</text></switch></g><path d="M 120 140 L 172.42 111.08" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/><path d="M 177.02 108.54 L 172.58 114.99 L 172.42 111.08 L 169.2 108.86 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/><rect x="0" y="110" width="120" height="60" rx="9" ry="9" fill="#ffffff" stroke="#000000" pointer-events="none"/><g transform="translate(1.5,114.5)"><switch><foreignObject style="overflow:visible;" pointer-events="all" width="116" height="51" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; font-size: 22px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; vertical-align: top; width: 116px; white-space: normal; word-wrap: normal; text-align: center;"><div xmlns="http://www.w3.org/1999/xhtml" style="display:inline-block;text-align:inherit;text-decoration:inherit;">Integration tests</div></div></foreignObject><text x="58" y="37" fill="#000000" text-anchor="middle" font-size="22px" font-family="Helvetica">Integration tests</text></switch></g><path d="M 280 80 L 318.63 80" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/><path d="M 323.88 80 L 316.88 83.5 L 318.63 80 L 316.88 76.5 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/><path d="M 262 108 L 286.98 154.39" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/><path d="M 289.47 159.02 L 283.07 154.51 L 286.98 154.39 L 289.23 151.19 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/><ellipse cx="220" cy="80" rx="60" ry="40" fill="#ffffff" stroke="#000000" pointer-events="none"/><g transform="translate(195.5,67.5)"><switch><foreignObject style="overflow:visible;" pointer-events="all" width="49" height="24" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; font-size: 22px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; vertical-align: top; width: 50px; white-space: nowrap; word-wrap: normal; text-align: center;"><div xmlns="http://www.w3.org/1999/xhtml" style="display:inline-block;text-align:inherit;text-decoration:inherit;">Kcov</div></div></foreignObject><text x="25" y="23" fill="#000000" text-anchor="middle" font-size="22px" font-family="Helvetica">Kcov</text></switch></g><path d="M 427 108 L 492.86 156.24" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/><path d="M 497.1 159.34 L 489.38 158.03 L 492.86 156.24 L 493.52 152.38 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/><path d="M 445 80 L 488.63 80" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/><path d="M 493.88 80 L 486.88 83.5 L 488.63 80 L 486.88 76.5 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/><ellipse cx="385" cy="80" rx="60" ry="40" fill="#ffffff" stroke="#000000" pointer-events="none"/><g transform="translate(338.5,67.5)"><switch><foreignObject style="overflow:visible;" pointer-events="all" width="92" height="24" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; font-size: 22px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; vertical-align: top; width: 92px; white-space: nowrap; word-wrap: normal; text-align: center;"><div xmlns="http://www.w3.org/1999/xhtml" style="display:inline-block;text-align:inherit;text-decoration:inherit;">Coveralls</div></div></foreignObject><text x="46" y="23" fill="#000000" text-anchor="middle" font-size="22px" font-family="Helvetica">Coveralls</text></switch></g><rect x="250" y="160" width="160" height="60" rx="9" ry="9" fill="#ffffff" stroke="#000000" pointer-events="none"/><g transform="translate(251.5,164.5)"><switch><foreignObject style="overflow:visible;" pointer-events="all" width="156" height="51" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; font-size: 22px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; vertical-align: top; width: 156px; white-space: normal; word-wrap: normal; text-align: center;"><div xmlns="http://www.w3.org/1999/xhtml" style="display:inline-block;text-align:inherit;text-decoration:inherit;">Local coverage report</div></div></foreignObject><text x="78" y="37" fill="#000000" text-anchor="middle" font-size="22px" font-family="Helvetica">Local coverage report</text></switch></g><rect x="460" y="160" width="150" height="60" rx="9" ry="9" fill="#ffffff" stroke="#000000" pointer-events="none"/><g transform="translate(461.5,164.5)"><switch><foreignObject style="overflow:visible;" pointer-events="all" width="146" height="51" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; font-size: 22px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; vertical-align: top; width: 146px; white-space: normal; word-wrap: normal; text-align: center;"><div xmlns="http://www.w3.org/1999/xhtml" style="display:inline-block;text-align:inherit;text-decoration:inherit;">Web coverage report</div></div></foreignObject><text x="73" y="37" fill="#000000" text-anchor="middle" font-size="22px" font-family="Helvetica">Web coverage report</text></switch></g><path d="M 120 30 L 172.05 49.74" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/><path d="M 176.95 51.6 L 169.17 52.39 L 172.05 49.74 L 171.65 45.85 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10" pointer-events="none"/><rect x="495" y="50" width="120" height="60" rx="9" ry="9" fill="#ffffff" stroke="#000000" pointer-events="none"/><g transform="translate(496.5,54.5)"><switch><foreignObject style="overflow:visible;" pointer-events="all" width="116" height="51" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"><div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; font-size: 22px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; vertical-align: top; width: 116px; white-space: normal; word-wrap: normal; text-align: center;"><div xmlns="http://www.w3.org/1999/xhtml" style="display:inline-block;text-align:inherit;text-decoration:inherit;">Coverage badge</div></div></foreignObject><text x="58" y="37" fill="#000000" text-anchor="middle" font-size="22px" font-family="Helvetica">Coverage badge</text></switch></g></g></svg>
+
+
+            </textarea>
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+            ## In Summary...
+
+            A well tested piece of software!
+          </textarea>
+        </section>
+      </section>
+
+
+      <section>
+        <h2>DEMO</h2>
+          <script type="text/javascript" src="https://asciinema.org/a/117813.js" id="asciicast-117813" data-size="big" async></script>
+      </section>
+
+
+    </div>
+  </div>
+  <script src="js/reveal.js"></script>
+  <script>
+    Reveal.initialize({
+      history: true,
+
+      dependencies: [
+        // Cross-browser shim that fully implements classList - https://github.com/eligrey/classList.js/
+        {
+          src: 'lib/js/classList.js',
+          condition: function() {
+            return !document.body.classList;
+          }
+        },
+
+        // Interpret Markdown in <section> elements
+        {
+          src: 'plugin/markdown/marked.js',
+          condition: function() {
+            return !!document.querySelector('[data-markdown]');
+          }
+        },
+        {
+          src: 'plugin/markdown/markdown.js',
+          condition: function() {
+            return !!document.querySelector('[data-markdown]');
+          }
+        },
+
+        // Syntax highlight for <code> elements
+        {
+          src: 'plugin/highlight/highlight.js',
+          async: true,
+          callback: function() {
+            hljs.initHighlightingOnLoad();
+          }
+        },
+
+        // Zoom in and out with Alt+click
+        {
+          src: 'plugin/zoom-js/zoom.js',
+          async: true
+        },
+
+        // Speaker notes
+        {
+          src: 'plugin/notes/notes.js',
+          async: true
+        },
+
+        // MathJax
+        {
+          src: 'plugin/math/math.js',
+          async: true
+        }
+      ],
+    });
+  </script>
+</body>
+
+</html>
