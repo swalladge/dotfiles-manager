@@ -1,5 +1,5 @@
 
-.PHONY: all build coverage unit-test integration-test test cloc clean
+.PHONY: all build coverage unit-test integration-test test cloc clean release presentation
 
 all: build
 
@@ -8,6 +8,9 @@ clean:
 
 build:
 	cargo build
+
+release:
+	cargo build --release
 
 coverage:
 	./scripts/gen-coverage.sh
