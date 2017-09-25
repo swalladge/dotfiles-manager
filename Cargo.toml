@@ -12,7 +12,7 @@ categories = ["command-line-utilities", "config"]
 
 [dependencies]
 clap = "2.26.0"
-sys-info = "*"
+sys-info = "0.5.1"
 
 [badges]
 travis-ci = { repository = "swalladge/dotfiles-manager", branch = "master" }
