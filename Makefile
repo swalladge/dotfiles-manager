@@ -25,7 +25,3 @@ test: unit-test integration-test
 
 cloc:
 	cloc src/ test/integration_tests integration_tests.sh Makefile .travis.yml scripts/
-
-presentation:
-	echo starting webserver - presentation hosted at root of local server
-	darkhttpd docs/presentation/
