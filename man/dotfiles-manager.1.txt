@@ -1,0 +1,162 @@
+dotfiles-manager(1)						  General Commands Manual						dotfiles-manager(1)
+
+NAME
+       dotfiles-manager - experimental dotfiles manager in rust
+
+SYNOPSIS
+       dotfiles-manager [-fhynVv] [-d] DIR [-t] TARGET_DIR [-B] HOSTNAME install|remove|add [subcommand options]
+
+DESCRIPTION
+       dotfiles-manager	 is  a	program	 to  manage your dotfiles.  It can work with a structured repository of files and hooks (see REPOSITORY STRUCTURE),
+       sorted into packages. It is able to install or remove packages, and can add an existing file to a package (eg. if you want to track a new dotfile).
+
+       See USAGE EXAMPLES for more information on how to use it.
+
+OPTIONS
+   General options
+       -f, --force
+	      Run in force mode - will overwrite any existing files when installing.
+
+       -h, --help
+	      Display help and usage. Gives help and usage for a subcommand if supplied after the subcommand.
+
+       -y, --yes
+	      Assume yes to all confirmation prompts. Useful for a non-interactive mode, such as in automated scripts.
+
+       -n, --no
+	      Run in test mode. When this is active, no files will be modified and no hooks will run. Use this to get a listing of what	 actions  would	 be
+	      performed.
+
+       -V, --version
+	      Display the software version and exit>
+
+       -v, --verbose
+	      Turn on verbose mode. Currently this does not display any extra information.
+
+       -d, --dir DIR
+	      Set the directory of the dotfiles repository. Default is the current working directory.
+
+       -t, --target DIR
+	      Set the directory to install to or remove from. Defaults to the HOME directory.
+
+       -B, --hostname NAME
+	      Override the computer's hostname. Affects which host-specific files/hooks are used.
+
+   'add' subcommand options
+       -p, --host
+	      Add the file in host-specific mode (instead of to the global package files directory).
+
+       -p, --package PACKAGE
+	      Set the package to add the existing file to.
+
+REPOSITORY STRUCTURE
+       The  dotfiles  repository  must	follow a certain structure so that files, hooks, and host specific things are correctly found for each package.	 An
+       example repository structure is below:
+
+       repository/
+       +-- vim/
+       |   +-- files/
+       |   |   +-- .vim/
+       |   |   |   -- filetype.vim
+       |   |   -- .vimrc
+       |   +-- hooks/
+       |   |   +-- post-down/
+       |   |   |   -- post-down-final.sh
+       |   |   +-- post-up/
+       |   |   |   -- install_plugins.sh
+       |   |   +-- pre-down/
+       |   |   |   -- prepare_for_teardown.sh
+       |   |   -- pre-up/
+       |   |	   -- setup.sh
+       |   -- hosts/
+       |       +-- desktop1/
+       |       |   +-- files/
+       |       |   |   +-- .config/
+       |       |   |   |   -- i3/
+       |       |   |   |       -- config
+       |       |   |   -- .vimrc
+       |       |   -- hooks/
+       |       |       +-- post-down/
+       |       |       |   -- remove_vim_package.sh
+       |       |       +-- post-up/
+       |       |       |   +-- 00-install_plugins.sh
+       |       |       |   -- 99-custom_install_after.sh
+       |       |       -- pre-up/
+       |       |	   -- setup.sh
+       |       -- test_host2/
+       |	   -- hooks/
+       |	       -- pre-up/
+       |		   -- setup.sh
+       -- zsh
+	   -- files
+	       -- .zshrc
+
+       Basically, every top level directory is a package. Each package directory can contain 3 directories: files, hooks, and hosts.  All files	 under	the
+       files directory are files to install and will be symlinked into the target directory, creating directories if required.
+
+       The  hooks  directory  can  contain  any of the following directories: pre-up, post-up, pre-down, and post-down. These directories must contain exe‐
+       cutable files to be run on events. They are run in lexicographical order, it could be useful to prefix names with a number, like '00' or '99' to set
+       the order.
+
+       The  hosts  directory can contain any number of directories, where the directory name corresponds to the hostname of the machine the containing con‐
+       figuration should apply to. Each host directory should contain up to 2 directories: files, and hooks. These directories perform the  same  functions
+       and  their package level counterparts discussed above. The files and hooks will only be used when the computer's hostname matches the host directory
+       name. Files and hooks with the same path and name as in the package level files and hooks will override the package level files and hooks.
+
+USAGE EXAMPLES
+   Installing packages
+       To install a subset of your dotfiles (a package), use the install subcommand.  For example (assuming the repository is  ~/.dotfiles-repo/  and  com‐
+       puter hostname is desktop1):
+
+       dotfiles-manager -d ~/.dotfiles-repo install vim
+
+       This will perform the following:
+
+       1. gather pre-up hooks from ~/.dotfiles-repo/vim/hooks/pre-up/ and ~/.dotfiles-repo/vim/hosts/desktop1/hooks/pre-up/ (if existing)
+       2. any global package hooks with the same name as host-specific hooks are discarded (allowing host-specific ones to override global)
+       3. hooks are executed in lexicographical order
+       4. program exits if hook fails to execute or returns a non-zero code
+       4. gather all files (including within subdirs) from ~/.dotfiles-repo/vim/files/ and ~/.dotfiles-repo/vim/hosts/desktop/files/
+       5. any files from the host-specific directory with the same path as package level files will be used instead of those
+       6. directories are created in the target directory as required
+       7. files are symlinked out
+       8. if error during symlinking, program quits without running post-up hooks
+       9. otherwise, gather post-up hooks from ~/.dotfiles-repo/vim/hooks/post-up/ and ~/.dotfiles-repo/vim/hosts/desktop1/hooks/post-up/ (if existing)
+       10. any global package hooks with the same name as host-specific hooks are discarded (allowing host-specific ones to override global)
+       11. hooks are executed in lexicographical order
+
+   Removing packages
+       Removing	 packages  is  almost  exactly	the reverse of installing. It will remove all correct current symlinks in the target dir to the package dir
+       files, and execute pre-down and post-down hooks.	 It will not attempt to remove files that aren't correct symlinks to the package  files.  (so  it's
+       pretty safe to use) Example:
+
+       dotfiles-manager -d ~/.dotfiles-repo remove vim
+
+   Adding files
+       Adding a file is a quick way to track a new dotfile. For example, to add your vimrc to the repository:
+
+       dotfiles-manager -d ~/.dotfiles-repo add ~/.vimrc --package vim
+
+       Alternatively, if this is a dotfile that is specific to this host, you can run:
+
+       dotfiles-manager -d ~/.dotfiles-repo add ~/.vimrc --package vim --host
+
+       This does the following:
+
+       1. move the file to the appropriate place in the source repository
+       2. symlink out the file to its original location
+
+   Notes
+       None of the operations will attempt to overwrite or delete existings files, unless the --force flag is given.
+
+       Multiple packages can be installed or removed at once (processed one after the other). Simply pass more package names after the subcommand:
+
+       dotfiles-manager -d ~/.dotfiles-repo install vim zsh
+
+BUGS
+       No known bugs.  If any issues are found, please open an issue at https://github.com/swalladge/dotfiles-manager/issues, or contact the author.
+
+AUTHOR
+       Samuel Walladge (samuel@swalladge.id.au)
+
+0.0.1								     September 29, 2017							dotfiles-manager(1)

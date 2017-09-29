@@ -66,77 +66,77 @@ An example repository structure is below:
 
 repository/
 .br
-├── vim/
++-- vim/
 .br
-│   ├── files/
+|   +-- files/
 .br
-│   │   ├── .vim/
+|   |   +-- .vim/
 .br
-│   │   │   └── filetype.vim
+|   |   |   \-- filetype.vim
 .br
-│   │   └── .vimrc
+|   |   \-- .vimrc
 .br
-│   ├── hooks/
+|   +-- hooks/
 .br
-│   │   ├── post-down/
+|   |   +-- post-down/
 .br
-│   │   │   └── post-down-final.sh
+|   |   |   \-- post-down-final.sh
 .br
-│   │   ├── post-up/
+|   |   +-- post-up/
 .br
-│   │   │   └── install_plugins.sh
+|   |   |   \-- install_plugins.sh
 .br
-│   │   ├── pre-down/
+|   |   +-- pre-down/
 .br
-│   │   │   └── prepare_for_teardown.sh
+|   |   |   \-- prepare_for_teardown.sh
 .br
-│   │   └── pre-up/
+|   |   \-- pre-up/
 .br
-│   │       └── setup.sh
+|   |       \-- setup.sh
 .br
-│   └── hosts/
+|   \-- hosts/
 .br
-│       ├── desktop1/
+|       +-- desktop1/
 .br
-│       │   ├── files/
+|       |   +-- files/
 .br
-│       │   │   ├── .config/
+|       |   |   +-- .config/
 .br
-│       │   │   │   └── i3/
+|       |   |   |   \-- i3/
 .br
-│       │   │   │       └── config
+|       |   |   |       \-- config
 .br
-│       │   │   └── .vimrc
+|       |   |   \-- .vimrc
 .br
-│       │   └── hooks/
+|       |   \-- hooks/
 .br
-│       │       ├── post-down/
+|       |       +-- post-down/
 .br
-│       │       │   └── remove_vim_package.sh
+|       |       |   \-- remove_vim_package.sh
 .br
-│       │       ├── post-up/
+|       |       +-- post-up/
 .br
-│       │       │   ├── 00-install_plugins.sh
+|       |       |   +-- 00-install_plugins.sh
 .br
-│       │       │   └── 99-custom_install_after.sh
+|       |       |   \-- 99-custom_install_after.sh
 .br
-│       │       └── pre-up/
+|       |       \-- pre-up/
 .br
-│       │           └── setup.sh
+|       |           \-- setup.sh
 .br
-│       └── test_host2/
+|       \-- test_host2/
 .br
-│           └── hooks/
+|           \-- hooks/
 .br
-│               └── pre-up/
+|               \-- pre-up/
 .br
-│                   └── setup.sh
+|                   \-- setup.sh
 .br
-└── zsh
+\-- zsh
 .br
-    └── files
+    \-- files
 .br
-        └── .zshrc
+        \-- .zshrc
 
 Basically, every top level directory is a package. Each package directory can
 contain 3 directories: files, hooks, and hosts.

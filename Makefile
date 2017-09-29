@@ -25,3 +25,6 @@ test: unit-test integration-test
 
 cloc:
 	cloc src/ test/integration_tests integration_tests.sh Makefile .travis.yml scripts/
+
+man2txt: ./man/dotfiles-manager.1
+	man ./man/dotfiles-manager.1 | col -b > ./man/dotfiles-manager.1.txt

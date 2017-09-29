@@ -19,6 +19,13 @@ Direction for the project taken from initial research, documented in the
 
 GitHub issues are currently used for tracking progress and documenting requirements.
 
+See the the man page for full usage documentation.
+View [plain text version here](man/dotfiles-manager.1.txt) or use `man`:
+
+```shell
+$ man ./man/dotfiles-manager.1
+```
+
 # Installing
 
 ## Binary release
