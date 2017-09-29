@@ -20,6 +20,7 @@ It can work with a structured repository of files and hooks (see \fBREPOSITORY S
 packages. It is able to install or remove packages, and can add an existing
 file to a package (eg. if you want to track a new dotfile).
 
+See \fBUSAGE EXAMPLES\fR for more information on how to use it.
 
 .SH OPTIONS
 .SS General options
@@ -155,6 +156,79 @@ counterparts discussed above. The files and hooks will only be used when the
 computer's hostname matches the host directory name. Files and hooks with the
 same path and name as in the package level files and hooks will override the
 package level files and hooks.
+
+
+.SH USAGE EXAMPLES
+
+.SS Installing packages
+
+To install a subset of your dotfiles (a package), use the install subcommand.
+For example (assuming the repository is ~/.dotfiles-repo/ and computer hostname is desktop1):
+
+\fBdotfiles-manager -d ~/.dotfiles-repo install vim\fR
+
+This will perform the following:
+
+1. gather pre-up hooks from ~/.dotfiles-repo/vim/hooks/pre-up/ and ~/.dotfiles-repo/vim/hosts/desktop1/hooks/pre-up/ (if existing)
+.br
+2. any global package hooks with the same name as host-specific hooks are discarded (allowing host-specific ones to override global)
+.br
+3. hooks are executed in lexicographical order
+.br
+4. program exits if hook fails to execute or returns a non-zero code
+.br
+4. gather all files (including within subdirs) from ~/.dotfiles-repo/vim/files/ and ~/.dotfiles-repo/vim/hosts/desktop/files/
+.br
+5. any files from the host-specific directory with the same path as package level files will be used instead of those
+.br
+6. directories are created in the target directory as required
+.br
+7. files are symlinked out
+.br
+8. if error during symlinking, program quits without running post-up hooks
+.br
+9. otherwise, gather post-up hooks from ~/.dotfiles-repo/vim/hooks/post-up/ and ~/.dotfiles-repo/vim/hosts/desktop1/hooks/post-up/ (if existing)
+.br
+10. any global package hooks with the same name as host-specific hooks are discarded (allowing host-specific ones to override global)
+.br
+11. hooks are executed in lexicographical order
+
+.SS Removing packages
+
+Removing packages is almost exactly the reverse of installing. It will remove
+all correct current symlinks in the target dir to the package dir files, and
+execute pre-down and post-down hooks.
+It will not attempt to remove files that aren't correct symlinks to the package files. (so it's pretty safe to use)
+Example:
+
+\fBdotfiles-manager -d ~/.dotfiles-repo remove vim\fR
+
+.SS Adding files
+
+Adding a file is a quick way to track a new dotfile. For example, to add your vimrc to the repository:
+
+\fBdotfiles-manager -d ~/.dotfiles-repo add ~/.vimrc --package vim\fR
+
+Alternatively, if this is a dotfile that is specific to this host, you can run:
+
+\fBdotfiles-manager -d ~/.dotfiles-repo add ~/.vimrc --package vim --host\fR
+
+This does the following:
+
+1. move the file to the appropriate place in the source repository
+.br
+2. symlink out the file to its original location
+
+.SS Notes
+
+None of the operations will attempt to overwrite or delete existings files,
+unless the \fB--force\fR flag is given.
+
+Multiple packages can be installed or removed at once (processed one after the
+other). Simply pass more package names after the subcommand:
+
+\fBdotfiles-manager -d ~/.dotfiles-repo install vim zsh\fR
+
 
 
 .SH BUGS
