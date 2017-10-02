@@ -206,15 +206,6 @@ mod tests {
     }
 
     #[test]
-    fn check_no_confirm_off() {
-        let app = app::new();
-        let app_args = vec!["dotfiles-manager", "--yes", "install", "vim"];
-        let args = args::get_args(app.get_matches_from(app_args)).unwrap();
-        assert!(args.no_confirm);
-    }
-
-
-    #[test]
     fn check_force_on() {
         let app = app::new();
         let app_args = vec!["dotfiles-manager", "-f", "install", "vim"];

@@ -2,7 +2,7 @@
 
 
 run_test() {
-     echo "checking that a general install of a package works as expected"
+     echo "checking a general removal of a package in simulate mode"
      exe_sans -d "${BASE_DIR}/test/repo" -t "${TEMP_LOCAL}/" -B desktop1 -y install vim
 
      exe -d "${BASE_DIR}/test/repo" -t "${TEMP_LOCAL}/" --hostname desktop1 --no uninstall vim

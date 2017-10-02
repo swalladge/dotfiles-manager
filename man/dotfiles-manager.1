@@ -177,21 +177,21 @@ This will perform the following:
 .br
 4. program exits if hook fails to execute or returns a non-zero code
 .br
-4. gather all files (including within subdirs) from ~/.dotfiles-repo/vim/files/ and ~/.dotfiles-repo/vim/hosts/desktop/files/
+5. gather all files (including within subdirs) from ~/.dotfiles-repo/vim/files/ and ~/.dotfiles-repo/vim/hosts/desktop/files/
 .br
-5. any files from the host-specific directory with the same path as package level files will be used instead of those
+6. any files from the host-specific directory with the same path as package level files will be used instead of those
 .br
-6. directories are created in the target directory as required
+7. directories are created in the target directory as required
 .br
-7. files are symlinked out
+8. files are symlinked out
 .br
-8. if error during symlinking, program quits without running post-up hooks
+9. if error during symlinking, program quits without running post-up hooks
 .br
-9. otherwise, gather post-up hooks from ~/.dotfiles-repo/vim/hooks/post-up/ and ~/.dotfiles-repo/vim/hosts/desktop1/hooks/post-up/ (if existing)
+10. otherwise, gather post-up hooks from ~/.dotfiles-repo/vim/hooks/post-up/ and ~/.dotfiles-repo/vim/hosts/desktop1/hooks/post-up/ (if existing)
 .br
-10. any global package hooks with the same name as host-specific hooks are discarded (allowing host-specific ones to override global)
+11. any global package hooks with the same name as host-specific hooks are discarded (allowing host-specific ones to override global)
 .br
-11. hooks are executed in lexicographical order
+12. hooks are executed in lexicographical order
 
 .SS Removing packages
 

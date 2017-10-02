@@ -3,7 +3,7 @@
 
 run_test() {
      echo "checking that adding a file to a package works (host specific mode)"
-     echo "also in force mode"
+     echo "(not in force mode)"
 
      # make some files/dirs
      echo "set compatible" > "${TEMP_LOCAL}/.vimrc2"
