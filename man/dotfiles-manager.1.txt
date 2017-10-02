@@ -28,7 +28,7 @@ OPTIONS
 	      performed.
 
        -V, --version
-	      Display the software version and exit>
+	      Display the software version and exit.
 
        -v, --verbose
 	      Turn on verbose mode. Currently this does not display any extra information.
@@ -116,14 +116,14 @@ USAGE EXAMPLES
        2. any global package hooks with the same name as host-specific hooks are discarded (allowing host-specific ones to override global)
        3. hooks are executed in lexicographical order
        4. program exits if hook fails to execute or returns a non-zero code
-       4. gather all files (including within subdirs) from ~/.dotfiles-repo/vim/files/ and ~/.dotfiles-repo/vim/hosts/desktop/files/
-       5. any files from the host-specific directory with the same path as package level files will be used instead of those
-       6. directories are created in the target directory as required
-       7. files are symlinked out
-       8. if error during symlinking, program quits without running post-up hooks
-       9. otherwise, gather post-up hooks from ~/.dotfiles-repo/vim/hooks/post-up/ and ~/.dotfiles-repo/vim/hosts/desktop1/hooks/post-up/ (if existing)
-       10. any global package hooks with the same name as host-specific hooks are discarded (allowing host-specific ones to override global)
-       11. hooks are executed in lexicographical order
+       5. gather all files (including within subdirs) from ~/.dotfiles-repo/vim/files/ and ~/.dotfiles-repo/vim/hosts/desktop/files/
+       6. any files from the host-specific directory with the same path as package level files will be used instead of those
+       7. directories are created in the target directory as required
+       8. files are symlinked out
+       9. if error during symlinking, program quits without running post-up hooks
+       10. otherwise, gather post-up hooks from ~/.dotfiles-repo/vim/hooks/post-up/ and ~/.dotfiles-repo/vim/hosts/desktop1/hooks/post-up/ (if existing)
+       11. any global package hooks with the same name as host-specific hooks are discarded (allowing host-specific ones to override global)
+       12. hooks are executed in lexicographical order
 
    Removing packages
        Removing	 packages  is  almost  exactly	the reverse of installing. It will remove all correct current symlinks in the target dir to the package dir
