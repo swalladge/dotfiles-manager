@@ -7,6 +7,13 @@ Experimental dotfiles manager in rust.
 [![Build Status](https://travis-ci.org/swalladge/dotfiles-manager.svg?branch=master)](https://travis-ci.org/swalladge/dotfiles-manager)
 [![Coverage Status](https://coveralls.io/repos/github/swalladge/dotfiles-manager/badge.svg?branch=master)](https://coveralls.io/github/swalladge/dotfiles-manager?branch=master)
 
+**THIS IS UNMAINTAINED SOFTWARE**
+
+This was a toy project for university which I have no intention of maintaining
+or putting any further work into.  If there's something interesting here that
+you wish to use, please go ahead - fork, copy, redistribute, whatever under the
+terms of the GPL! Sorry for any inconvenience.
+
 # About
 
 This is a project for PRT455 (Software Engineering Practice).
